@@ -23,3 +23,12 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Python / FastAPI
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+backend/.venv/
+backend/*.db
+*.db
