@@ -1,6 +1,6 @@
 # MediScan AI API
 
-FastAPI backend for MediScan AI. Phase 1: study CRUD. Phase 2: X-ray upload + mock analysis (no CNN yet).
+FastAPI backend for MediScan AI. Phase 1: study CRUD. Phase 2: X-ray upload + mock analysis. Phase 3: dashboard stats/trends from SQLite (no CNN yet).
 
 ## Setup
 
@@ -34,6 +34,8 @@ uvicorn app.main:app --reload --port 8000
 | POST | `/api/studies` | Create a study (JSON) |
 | PATCH | `/api/studies/{id}` | Update notes / status |
 | POST | `/api/studies/analyze` | Upload X-ray + mock prediction |
+| GET | `/api/dashboard/stats` | KPI + finding distribution |
+| GET | `/api/dashboard/trends` | Daily study / abnormal counts (`?days=30`) |
 
 ### Analyze form fields
 

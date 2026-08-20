@@ -56,6 +56,33 @@ class AnalyzeResponse(BaseModel):
     study: Study | None = None
 
 
+class DashboardStats(BaseModel):
+    totalStudies: int
+    pendingReview: int
+    abnormalCount: int
+    avgConfidence: float
+    timestamp: datetime
+
+
+class FindingDistribution(BaseModel):
+    label: FindingLabel
+    count: int
+
+
+class DashboardStatsResponse(BaseModel):
+    """Matches frontend fetchDashboardStats payload."""
+
+    stats: DashboardStats
+    findingDistribution: list[FindingDistribution]
+
+
+class StudyTrendPoint(BaseModel):
+    date: str
+    formattedDate: str
+    totalStudies: int
+    abnormalCount: int
+
+
 class HealthResponse(BaseModel):
     status: str
     app: str
