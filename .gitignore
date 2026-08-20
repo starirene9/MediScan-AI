@@ -32,3 +32,5 @@ venv/
 backend/.venv/
 backend/*.db
 *.db
+backend/uploads/*
+!backend/uploads/.gitkeep

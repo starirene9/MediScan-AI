@@ -1,6 +1,6 @@
-# MediScan AI API (Phase 1)
+# MediScan AI API
 
-FastAPI skeleton with SQLite study CRUD. No CNN / file upload yet.
+FastAPI backend for MediScan AI. Phase 1: study CRUD. Phase 2: X-ray upload + mock analysis (no CNN yet).
 
 ## Setup
 
@@ -22,13 +22,24 @@ uvicorn app.main:app --reload --port 8000
 
 - Health: http://localhost:8000/api/health
 - Swagger: http://localhost:8000/docs
+- Uploaded files: http://localhost:8000/uploads/{filename}
 
-## Endpoints (Phase 1)
+## Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/api/health` | Health check |
-| GET | `/api/studies` | List studies (6 seed rows on first start) |
+| GET | `/api/studies` | List studies |
 | GET | `/api/studies/{id}` | Get one study |
-| POST | `/api/studies` | Create a study |
+| POST | `/api/studies` | Create a study (JSON) |
 | PATCH | `/api/studies/{id}` | Update notes / status |
+| POST | `/api/studies/analyze` | Upload X-ray + mock prediction |
+
+### Analyze form fields
+
+- `file` (required): JPEG / PNG / WebP / GIF
+- `patientName` (optional)
+- `notes` (optional)
+- `saveToWorklist` (optional, default `false`): also insert a study row
+
+The frontend is not wired to these APIs yet.

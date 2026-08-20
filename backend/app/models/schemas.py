@@ -49,6 +49,13 @@ class StudyUpdate(BaseModel):
     status: StudyStatus | None = None
 
 
+class AnalyzeResponse(BaseModel):
+    prediction: Prediction
+    imageUrl: str
+    gradCamUrl: str | None = None
+    study: Study | None = None
+
+
 class HealthResponse(BaseModel):
     status: str
     app: str

@@ -1,10 +1,15 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BACKEND_ROOT = Path(__file__).resolve().parent.parent
 
 
 class Settings(BaseSettings):
     app_name: str = "MediScan AI API"
     database_url: str = "sqlite:///./mediscan.db"
     cors_origins: str = "http://localhost:5173"
+    upload_dir: str = str(BACKEND_ROOT / "uploads")
 
     model_config = SettingsConfigDict(
         env_file=".env",
