@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+:root {
+  /* 기본 색상 */
+  --color-navy: #3c4b64; /* 네이비 */
+  --color-dark-navy: #2b3648; /* 어두운 네이비 */
+  --color-light-navy: #4f5d75; /* 밝은 네이비 */
+
+  --color-blue: #007bff; /* 파란색 */
+  --color-dark-blue: #0056b3; /* 어두운 파란색 */
+  --color-light-blue: #66b3ff; /* 밝은 파란색 */
+  --color-sky-blue: #87ceeb; /* 하늘색 */
+  --color-cyan: #17a2b8; /* 시안 (청록색) */
+
+  --color-gray: #6c757d; /* 회색 */
+  --color-dark-gray: #495057; /* 어두운 회색 */
+  --color-light-gray: #adb5bd; /* 밝은 회색 */
+  --color-silver: #c0c5ce; /* 실버 */
+  --color-charcoal: #343a40; /* 짙은 회색 */
+
+  /* 보조 색상 */
+  --color-white: #ffffff; /* 하얀색 */
+  --color-black: #000000; /* 검정색 */
+  --color-soft-white: #f8f9fa; /* 부드러운 흰색 */
+  --color-light-silver: #dee2e6; /* 연한 실버 */
+
+  /* 포인트 색상 */
+  --color-electric-blue: #009dff; /* 강한 파란색 */
+  --color-azure: #0080ff; /* 밝은 푸른색 */
+  --color-steel-blue: #4682b4; /* 스틸 블루 */
+  --color-midnight-blue: #191970; /* 미드나잇 블루 */
+  --color-indigo: #4b0082; /* 인디고 */
+}
+
+html {
+  font-size: 16px; /* 1rem = 16px */
+}
+
+/* 화면이 768px 이하일 때 폰트 크기 축소 */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px; /* 1rem = 14px */
+  }
+}
+
+/* 화면이 480px 이하일 때 더 축소 */
+@media (max-width: 480px) {
+  html {
+    font-size: 12px; /* 1rem = 12px */
+  }
+}
