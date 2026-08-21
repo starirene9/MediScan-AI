@@ -65,6 +65,8 @@ export const messages: Record<string, Record<string, string>> = {
     no_image: "No image available",
     mock_ai_notice:
       "UI demo mode — AI results are mocked. Real inference will connect on the FastAPI branch.",
+    api_ai_notice:
+      "Connected to FastAPI — upload and worklist data come from the backend (mock CNN predictions).",
     gradcam_preview: "Grad-CAM Preview",
     login_subtitle: "AI-powered chest X-ray analysis platform",
   },
@@ -134,6 +136,8 @@ export const messages: Record<string, Record<string, string>> = {
     no_image: "이미지 없음",
     mock_ai_notice:
       "UI 데모 모드 — AI 결과는 mock입니다. FastAPI 브랜치에서 실제 추론이 연결됩니다.",
+    api_ai_notice:
+      "FastAPI 연결됨 — 업로드와 워크리스트는 백엔드 데이터를 사용합니다 (CNN 예측은 아직 mock).",
     gradcam_preview: "Grad-CAM 미리보기",
     login_subtitle: "AI 기반 흉부 X-ray 분석 플랫폼",
   },
@@ -203,6 +207,8 @@ export const messages: Record<string, Record<string, string>> = {
     no_image: "Sin imagen",
     mock_ai_notice:
       "Modo demo UI — los resultados IA son simulados. La inferencia real se conectará en la rama FastAPI.",
+    api_ai_notice:
+      "Conectado a FastAPI — la carga y la lista usan datos del backend (predicciones CNN aún simuladas).",
     gradcam_preview: "Vista previa Grad-CAM",
     login_subtitle: "Plataforma de análisis de radiografía de tórax con IA",
   },

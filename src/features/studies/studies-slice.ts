@@ -1,6 +1,13 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "../../store/store";
 import { Study } from "../../types/study";
+import {
+  createStudy,
+  fetchStudies,
+  fetchStudy,
+  patchStudy,
+} from "../../services/apiClient";
+import { FEATURES } from "../../config/features";
 
 interface StudiesState {
   studies: { [id: string]: Study };
@@ -9,105 +16,83 @@ interface StudiesState {
   selectedStudyId: string | null;
 }
 
-const sampleStudies: { [id: string]: Study } = {
-  S001: {
-    id: "S001",
-    patientId: "P001",
-    patientName: "John Smith",
-    age: 45,
-    gender: "Male",
-    modality: "Chest X-ray",
-    uploadedAt: "2025-08-18T09:30:00",
-    status: "Abnormal",
-    prediction: { label: "Nodule", confidence: 0.87 },
-    imageUrl: "/placeholder-xray.svg",
-    gradCamUrl: "/placeholder-xray.svg",
-    notes: "",
-  },
-  S002: {
-    id: "S002",
-    patientId: "P002",
-    patientName: "Emily Johnson",
-    age: 32,
-    gender: "Female",
-    modality: "Chest X-ray",
-    uploadedAt: "2025-08-18T11:15:00",
-    status: "Abnormal",
-    prediction: { label: "Pneumonia", confidence: 0.92 },
-    imageUrl: "/placeholder-xray.svg",
-    gradCamUrl: "/placeholder-xray.svg",
-    notes: "Follow-up recommended in 2 weeks.",
-  },
-  S003: {
-    id: "S003",
-    patientId: "P003",
-    patientName: "Robert Williams",
-    age: 58,
-    gender: "Male",
-    modality: "Chest X-ray",
-    uploadedAt: "2025-08-19T08:00:00",
-    status: "Normal",
-    prediction: { label: "Normal", confidence: 0.95 },
-    imageUrl: "/placeholder-xray.svg",
-    gradCamUrl: null,
-    notes: "",
-  },
-  S004: {
-    id: "S004",
-    patientId: "P004",
-    patientName: "Sophia Garcia",
-    age: 29,
-    gender: "Female",
-    modality: "Chest X-ray",
-    uploadedAt: "2025-08-19T14:20:00",
-    status: "Pending",
-    prediction: { label: "Other", confidence: 0.62 },
-    imageUrl: "/placeholder-xray.svg",
-    gradCamUrl: null,
-    notes: "",
-  },
-  S005: {
-    id: "S005",
-    patientId: "P005",
-    patientName: "David Kim",
-    age: 67,
-    gender: "Male",
-    modality: "Chest X-ray",
-    uploadedAt: "2025-08-20T07:45:00",
-    status: "Reviewed",
-    prediction: { label: "Nodule", confidence: 0.78 },
-    imageUrl: "/placeholder-xray.svg",
-    gradCamUrl: "/placeholder-xray.svg",
-    notes: "Biopsy scheduled.",
-  },
-  S006: {
-    id: "S006",
-    patientId: "P006",
-    patientName: "Jackson Lee",
-    age: 52,
-    gender: "Male",
-    modality: "Chest X-ray",
-    uploadedAt: "2025-08-20T10:00:00",
-    status: "Pending",
-    prediction: { label: "Normal", confidence: 0.71 },
-    imageUrl: "/placeholder-xray.svg",
-    gradCamUrl: null,
-    notes: "",
-  },
-};
-
 const initialState: StudiesState = {
-  studies: sampleStudies,
+  studies: {},
   loading: false,
   error: null,
   selectedStudyId: null,
 };
 
+function toRecord(list: Study[]): { [id: string]: Study } {
+  return Object.fromEntries(list.map((study) => [study.id, study]));
+}
+
 export const fetchStudiesData = createAsyncThunk(
   "studies/fetchStudiesData",
   async () => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    return sampleStudies;
+    if (FEATURES.USE_MOCK_AI) {
+      await new Promise((resolve) => setTimeout(resolve, 400));
+      return {} as { [id: string]: Study };
+    }
+    const list = await fetchStudies();
+    return toRecord(list);
+  }
+);
+
+export const fetchStudyById = createAsyncThunk(
+  "studies/fetchStudyById",
+  async (id: string) => {
+    if (FEATURES.USE_MOCK_AI) {
+      throw new Error("Study not found");
+    }
+    return fetchStudy(id);
+  }
+);
+
+export const saveStudyNotes = createAsyncThunk(
+  "studies/saveStudyNotes",
+  async ({ id, notes }: { id: string; notes: string }) => {
+    if (FEATURES.USE_MOCK_AI) {
+      return { id, notes } as Partial<Study> & { id: string };
+    }
+    return patchStudy(id, { notes });
+  }
+);
+
+export const saveStudyToWorklist = createAsyncThunk(
+  "studies/saveStudyToWorklist",
+  async (
+    payload: {
+      patientId?: string | null;
+      patientName: string;
+      age: number;
+      gender: string;
+      modality: string;
+      status: Study["status"];
+      prediction: Study["prediction"];
+      imageUrl: string;
+      gradCamUrl: string | null;
+      notes: string;
+    }
+  ) => {
+    if (FEATURES.USE_MOCK_AI) {
+      const id = `S${Date.now().toString().slice(-6)}`;
+      return {
+        id,
+        patientId: payload.patientId || `P${Date.now().toString().slice(-4)}`,
+        patientName: payload.patientName,
+        age: payload.age,
+        gender: payload.gender,
+        modality: payload.modality,
+        uploadedAt: new Date().toISOString(),
+        status: payload.status,
+        prediction: payload.prediction,
+        imageUrl: payload.imageUrl,
+        gradCamUrl: payload.gradCamUrl,
+        notes: payload.notes,
+      } as Study;
+    }
+    return createStudy(payload);
   }
 );
 
@@ -145,6 +130,23 @@ export const studiesSlice = createSlice({
       .addCase(fetchStudiesData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "Failed to fetch studies";
+      })
+      .addCase(fetchStudyById.fulfilled, (state, action) => {
+        state.studies[action.payload.id] = action.payload;
+        state.loading = false;
+      })
+      .addCase(saveStudyNotes.fulfilled, (state, action) => {
+        const study = action.payload as Study;
+        if (study.id && state.studies[study.id]) {
+          state.studies[study.id] = {
+            ...state.studies[study.id],
+            ...study,
+          };
+        }
+      })
+      .addCase(saveStudyToWorklist.fulfilled, (state, action) => {
+        state.studies[action.payload.id] = action.payload;
+        state.selectedStudyId = action.payload.id;
       });
   },
 });

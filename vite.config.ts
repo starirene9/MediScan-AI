@@ -7,6 +7,18 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   assetsInclude: ["**/*.jpg", "**/*.png", "**/*.svg"],
   optimizeDeps: {
-    include: ["react-intl"], // react-intl을 명시적으로 포함
+    include: ["react-intl"],
+  },
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:8000",
+        changeOrigin: true,
+      },
+      "/uploads": {
+        target: "http://127.0.0.1:8000",
+        changeOrigin: true,
+      },
+    },
   },
 });

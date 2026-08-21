@@ -1,4 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { FEATURES } from "../../config/features";
+import { fetchDashboardStatsApi } from "../../services/apiClient";
 
 export interface DashboardStats {
   totalStudies: number;
@@ -20,24 +22,22 @@ interface DashboardStatsState {
   error: string | null;
 }
 
-const mockStats: DashboardStats = {
-  totalStudies: 142,
-  pendingReview: 18,
-  abnormalCount: 34,
-  avgConfidence: 0.84,
-  timestamp: new Date().toISOString(),
+const emptyStats: DashboardStats = {
+  totalStudies: 0,
+  pendingReview: 0,
+  abnormalCount: 0,
+  avgConfidence: 0,
+  timestamp: "",
 };
 
-const mockFindingDistribution: FindingDistribution[] = [
-  { label: "Normal", count: 68 },
-  { label: "Nodule", count: 22 },
-  { label: "Pneumonia", count: 12 },
-  { label: "Other", count: 40 },
-];
-
 const initialState: DashboardStatsState = {
-  stats: mockStats,
-  findingDistribution: mockFindingDistribution,
+  stats: emptyStats,
+  findingDistribution: [
+    { label: "Normal", count: 0 },
+    { label: "Nodule", count: 0 },
+    { label: "Pneumonia", count: 0 },
+    { label: "Other", count: 0 },
+  ],
   loading: false,
   error: null,
 };
@@ -45,11 +45,13 @@ const initialState: DashboardStatsState = {
 export const fetchDashboardStats = createAsyncThunk(
   "dashboardStats/fetchDashboardStats",
   async () => {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    return {
-      stats: { ...mockStats, timestamp: new Date().toISOString() },
-      findingDistribution: mockFindingDistribution,
-    };
+    if (FEATURES.USE_MOCK_AI) {
+      return {
+        stats: emptyStats,
+        findingDistribution: initialState.findingDistribution,
+      };
+    }
+    return fetchDashboardStatsApi();
   }
 );
 

@@ -1,4 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { FEATURES } from "../../config/features";
+import { fetchStudyTrendsApi } from "../../services/apiClient";
 
 export interface StudyTrendPoint {
   date: string;
@@ -13,27 +15,8 @@ interface StudyTrendsState {
   error: string | null;
 }
 
-const generateMockTrends = (): StudyTrendPoint[] => {
-  const trends: StudyTrendPoint[] = [];
-  const now = new Date();
-
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(now);
-    date.setDate(now.getDate() - i);
-    const totalStudies = Math.floor(Math.random() * 12) + 3;
-    trends.push({
-      date: date.toISOString().slice(0, 10),
-      formattedDate: date.toISOString().slice(5, 10),
-      totalStudies,
-      abnormalCount: Math.floor(totalStudies * (0.2 + Math.random() * 0.3)),
-    });
-  }
-
-  return trends;
-};
-
 const initialState: StudyTrendsState = {
-  trends: generateMockTrends(),
+  trends: [],
   loading: false,
   error: null,
 };
@@ -41,8 +24,10 @@ const initialState: StudyTrendsState = {
 export const fetchStudyTrends = createAsyncThunk(
   "studyTrends/fetchStudyTrends",
   async () => {
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    return generateMockTrends();
+    if (FEATURES.USE_MOCK_AI) {
+      return [] as StudyTrendPoint[];
+    }
+    return fetchStudyTrendsApi(30);
   }
 );
 

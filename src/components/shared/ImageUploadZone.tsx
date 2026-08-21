@@ -4,7 +4,7 @@ import { useIntl } from "react-intl";
 
 interface ImageUploadZoneProps {
   imageUrl: string | null;
-  onImageChange: (url: string) => void;
+  onImageChange: (previewUrl: string, file: File) => void;
   label?: string;
 }
 
@@ -21,7 +21,7 @@ const ImageUploadZone = ({
     const reader = new FileReader();
     reader.onload = (e) => {
       if (typeof e.target?.result === "string") {
-        onImageChange(e.target.result);
+        onImageChange(e.target.result, file);
       }
     };
     reader.readAsDataURL(file);
@@ -93,7 +93,7 @@ const ImageUploadZone = ({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/png,image/jpeg,image/webp,image/gif"
           style={{ display: "none" }}
           onChange={handleFileInputChange}
         />

@@ -1,5 +1,6 @@
 import { FindingLabel, Prediction } from "../types/study";
 import { FEATURES } from "../config/features";
+import { analyzeXray } from "./apiClient";
 
 const MOCK_PREDICTIONS: Prediction[] = [
   { label: "Normal", confidence: 0.91 },
@@ -8,14 +9,44 @@ const MOCK_PREDICTIONS: Prediction[] = [
   { label: "Other", confidence: 0.65 },
 ];
 
-/** UI-only mock. Replace with FastAPI call on feature/fastapi-backend branch. */
-export async function runMockAnalysis(_imageUrl: string): Promise<Prediction> {
+export interface AnalysisResult {
+  prediction: Prediction;
+  imageUrl: string;
+  gradCamUrl: string | null;
+}
+
+/** Prefer API analyze when USE_MOCK_AI is false. */
+export async function runAnalysis(params: {
+  file?: File | null;
+  previewUrl: string;
+  patientName?: string;
+  notes?: string;
+}): Promise<AnalysisResult> {
   if (!FEATURES.USE_MOCK_AI) {
-    throw new Error("Real API not wired yet. Enable on feature/fastapi-backend.");
+    if (!params.file) {
+      throw new Error("Please select an image file to analyze.");
+    }
+    const result = await analyzeXray({
+      file: params.file,
+      patientName: params.patientName,
+      notes: params.notes,
+      saveToWorklist: false,
+    });
+    return {
+      prediction: result.prediction,
+      imageUrl: result.imageUrl,
+      gradCamUrl: result.gradCamUrl,
+    };
   }
 
   await new Promise((r) => setTimeout(r, 1500));
-  return MOCK_PREDICTIONS[Math.floor(Math.random() * MOCK_PREDICTIONS.length)];
+  const prediction =
+    MOCK_PREDICTIONS[Math.floor(Math.random() * MOCK_PREDICTIONS.length)];
+  return {
+    prediction,
+    imageUrl: params.previewUrl,
+    gradCamUrl: getMockGradCamUrl(params.previewUrl, prediction.label),
+  };
 }
 
 export function getMockGradCamUrl(
@@ -23,6 +54,5 @@ export function getMockGradCamUrl(
   label: FindingLabel
 ): string | null {
   if (label === "Normal") return null;
-  // Placeholder: same image until Grad-CAM API is connected
   return imageUrl;
 }
