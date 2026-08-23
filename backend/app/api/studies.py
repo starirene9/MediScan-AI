@@ -63,3 +63,8 @@ def update_study(
     study_id: str, payload: StudyUpdate, db: Session = Depends(get_db)
 ) -> Study:
     return study_service.update_study(db, study_id, payload)
+
+
+@router.delete("/{study_id}", status_code=204)
+def delete_study(study_id: str, db: Session = Depends(get_db)) -> None:
+    study_service.delete_study(db, study_id)

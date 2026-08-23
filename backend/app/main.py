@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from app.api import dashboard, health, studies
 from app.config import settings
 from app.db.database import Base, SessionLocal, engine
+from app.db.migrate import ensure_schema
 from app.db.seed import seed_studies
 from app.models import entities  # noqa: F401  — register SQLAlchemy models
 from app.services.storage_service import ensure_upload_dir
@@ -16,6 +17,7 @@ from app.services.storage_service import ensure_upload_dir
 async def lifespan(_app: FastAPI):
     ensure_upload_dir()
     Base.metadata.create_all(bind=engine)
+    ensure_schema(engine)
     db = SessionLocal()
     try:
         seed_studies(db)

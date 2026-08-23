@@ -4,16 +4,19 @@ from datetime import date, datetime, time, timedelta
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.ml.pathologies import NIH14_PATHOLOGIES, NO_FINDING_LABEL
 from app.models.entities import StudyEntity
 from app.models.schemas import (
     DashboardStats,
     DashboardStatsResponse,
     FindingDistribution,
-    FindingLabel,
     StudyTrendPoint,
 )
 
-FINDING_LABELS: tuple[FindingLabel, ...] = ("Normal", "Nodule", "Pneumonia", "Other")
+
+def _distribution_labels() -> list[str]:
+    # Always report against NIH-14 (+ Normal) — no "Other" bucket.
+    return [NO_FINDING_LABEL, *NIH14_PATHOLOGIES]
 
 
 def get_stats(db: Session) -> DashboardStatsResponse:
@@ -38,10 +41,16 @@ def get_stats(db: Session) -> DashboardStatsResponse:
         .group_by(StudyEntity.prediction_label)
         .all()
     )
+    labels = _distribution_labels()
     distribution = [
         FindingDistribution(label=label, count=int(label_counts.get(label, 0)))
-        for label in FINDING_LABELS
+        for label in labels
+        if int(label_counts.get(label, 0)) > 0 or label == NO_FINDING_LABEL
     ]
+    # Include any unexpected labels present in DB (legacy rows).
+    for label, count in label_counts.items():
+        if label not in {item.label for item in distribution}:
+            distribution.append(FindingDistribution(label=label, count=int(count)))
 
     return DashboardStatsResponse(
         stats=DashboardStats(

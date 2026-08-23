@@ -64,7 +64,7 @@ SEED_SPECS = [
         "hour": 14,
         "minute": 20,
         "status": "Pending",
-        "prediction_label": "Other",
+        "prediction_label": "Effusion",
         "prediction_confidence": 0.62,
         "image_url": "/placeholder-xray.svg",
         "grad_cam_url": None,
@@ -126,6 +126,8 @@ def build_seed_studies() -> list[StudyEntity]:
             status=spec["status"],
             prediction_label=spec["prediction_label"],
             prediction_confidence=spec["prediction_confidence"],
+            prediction_findings="[]",
+            prediction_mode="nih14",
             image_url=spec["image_url"],
             grad_cam_url=spec["grad_cam_url"],
             notes=spec["notes"],
@@ -135,12 +137,17 @@ def build_seed_studies() -> list[StudyEntity]:
 
 
 def refresh_seed_upload_dates(db: Session) -> None:
-    """Keep seed rows on a rolling 'relative to today' timeline for trends."""
+    """Keep seed rows on a rolling timeline and sync NIH-style labels."""
     for spec in SEED_SPECS:
         entity = db.get(StudyEntity, spec["id"])
         if entity is None:
             continue
         entity.uploaded_at = _uploaded_at(spec["days_ago"], spec["hour"], spec["minute"])
+        entity.prediction_label = spec["prediction_label"]
+        entity.prediction_confidence = spec["prediction_confidence"]
+        entity.prediction_mode = "nih14"
+        if not getattr(entity, "prediction_findings", None):
+            entity.prediction_findings = "[]"
     db.commit()
 
 

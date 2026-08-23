@@ -34,3 +34,5 @@ backend/*.db
 *.db
 backend/uploads/*
 !backend/uploads/.gitkeep
+backend/models/*.pt
+backend/models/*.pt.bak

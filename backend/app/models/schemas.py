@@ -4,12 +4,24 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 StudyStatus = Literal["Pending", "Reviewed", "Abnormal", "Normal"]
-FindingLabel = Literal["Normal", "Nodule", "Pneumonia", "Other"]
+
+# Summary label is free-form: NIH pathology name or "Normal".
+FindingLabel = str
+
+
+class PathologyFinding(BaseModel):
+    """One NIH ChestX-ray14 pathology score."""
+
+    name: str
+    score: float = Field(ge=0, le=1)
+    positive: bool = False
 
 
 class Prediction(BaseModel):
     label: FindingLabel
     confidence: float = Field(ge=0, le=1)
+    findings: list[PathologyFinding] = Field(default_factory=list)
+    classificationMode: str = "nih14"
 
 
 class Study(BaseModel):
@@ -47,6 +59,10 @@ class StudyCreate(BaseModel):
 class StudyUpdate(BaseModel):
     notes: str | None = None
     status: StudyStatus | None = None
+    patientName: str | None = None
+    age: int | None = None
+    gender: str | None = None
+    modality: str | None = None
 
 
 class AnalyzeResponse(BaseModel):
@@ -86,3 +102,11 @@ class StudyTrendPoint(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     app: str
+
+
+class InferenceSettingsResponse(BaseModel):
+    classificationMode: str
+    pathologyThreshold: float
+    pathologyThresholds: dict[str, float]
+    pathologies: list[str]
+    groupMap: dict[str, str]
