@@ -127,11 +127,6 @@ const XrayUpload = () => {
         <Typography variant="h6" sx={{ color: "var(--color-navy)" }}>
           {intl.formatMessage({ id: "upload_xray" })}
         </Typography>
-        {!FEATURES.USE_MOCK_AI && (
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-            {intl.formatMessage({ id: "upload_workflow_hint" })}
-          </Typography>
-        )}
       </Box>
 
       {FEATURES.USE_MOCK_AI && (

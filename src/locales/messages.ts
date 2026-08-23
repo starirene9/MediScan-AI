@@ -99,8 +99,6 @@ export const messages: Record<string, Record<string, string>> = {
     no_image: "No image available",
     mock_ai_notice:
       "UI demo mode — AI results are mocked. Real inference will connect on the FastAPI branch.",
-    upload_workflow_hint:
-      "Upload a chest X-ray, enter the patient name, and run AI-assisted screening. Results support review — not a final diagnosis.",
     gradcam_preview: "Grad-CAM Preview",
     login_subtitle: "AI-powered chest X-ray analysis platform",
     clinical_disclaimer:
@@ -209,8 +207,6 @@ export const messages: Record<string, Record<string, string>> = {
     no_image: "이미지 없음",
     mock_ai_notice:
       "UI 데모 모드 — AI 결과는 mock입니다. FastAPI 브랜치에서 실제 추론이 연결됩니다.",
-    upload_workflow_hint:
-      "흉부 X-ray를 업로드하고 환자 이름을 입력한 뒤 AI 보조 스크리닝을 실행하세요. 결과는 판독 참고용이며 확진이 아닙니다.",
     gradcam_preview: "Grad-CAM 미리보기",
     login_subtitle: "AI 기반 흉부 X-ray 분석 플랫폼",
     clinical_disclaimer:
@@ -318,8 +314,6 @@ export const messages: Record<string, Record<string, string>> = {
     no_image: "Sin imagen",
     mock_ai_notice:
       "Modo demo UI — los resultados IA son simulados. La inferencia real se conectará en la rama FastAPI.",
-    upload_workflow_hint:
-      "Suba una radiografía de tórax, ingrese el nombre del paciente y ejecute el cribado asistido por IA. Los resultados apoyan la revisión clínica — no son un diagnóstico definitivo.",
     gradcam_preview: "Vista previa Grad-CAM",
     login_subtitle: "Plataforma de análisis de radiografía de tórax con IA",
     clinical_disclaimer:
