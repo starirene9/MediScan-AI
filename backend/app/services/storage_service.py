@@ -39,3 +39,14 @@ def save_upload(file: UploadFile) -> str:
     dest = upload_dir / filename
     dest.write_bytes(file.file.read())
     return f"/uploads/{filename}"
+
+
+def resolve_upload_path(image_url: str) -> Path:
+    """Convert API URL `/uploads/abc.png` → disk path for CNN inference."""
+    prefix = "/uploads/"
+    if not image_url.startswith(prefix):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid image URL for inference.",
+        )
+    return ensure_upload_dir() / image_url.removeprefix(prefix)

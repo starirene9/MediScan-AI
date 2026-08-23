@@ -21,13 +21,22 @@ async def analyze_study(
     saveToWorklist: bool = Form(False),
     db: Session = Depends(get_db),
 ) -> AnalyzeResponse:
+    # 1) Save upload to disk; API returns URL for the frontend
     image_url = storage_service.save_upload(file)
-    prediction = await inference_service.predict(file.filename or "xray")
+
+    # 2) Resolve URL → local path and run CNN inference on the saved file
+    image_path = storage_service.resolve_upload_path(image_url)
+    prediction = await inference_service.predict(image_path)
+
     grad_cam_url = inference_service.mock_gradcam_url(image_url, prediction.label)
 
     study = None
     if saveToWorklist:
-        status = "Normal" if prediction.label == "Normal" else "Abnormal"
+        status = (
+            "Normal"
+            if inference_service.is_normal_label(prediction.label)
+            else "Abnormal"
+        )
         study = study_service.create_study(
             db,
             StudyCreate(
