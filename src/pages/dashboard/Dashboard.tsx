@@ -24,22 +24,23 @@ const Dashboard = () => {
   return (
     <Box
       sx={{
+        height: "100%",
+        minHeight: 0,
         display: "flex",
         flexDirection: "column",
-        gap: 2,
-        minHeight: "100%",
-        pb: 2,
+        gap: 1.5,
+        overflow: "hidden",
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexShrink: 0 }}>
         <Typography variant="h6" sx={{ color: "var(--color-navy)" }}>
           {intl.formatMessage({ id: "dashboard_title" })}
         </Typography>
-        {loading && <CircularProgress size={20} />}
+        {loading && <CircularProgress size={18} />}
       </Box>
 
       {error && (
-        <Typography color="error" variant="body2">
+        <Typography color="error" variant="body2" sx={{ flexShrink: 0 }}>
           {error}
         </Typography>
       )}
@@ -48,38 +49,43 @@ const Dashboard = () => {
         sx={{
           display: "grid",
           gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4, 1fr)" },
-          gap: 2,
+          gap: 1.5,
+          flexShrink: 0,
         }}
       >
-        <StatCard labelId="stat_total_studies" value={stats.totalStudies} />
+        <StatCard labelId="stat_total_studies" value={stats.totalStudies} compact />
         <StatCard
           labelId="stat_pending_review"
           value={stats.pendingReview}
           color="var(--color-azure)"
+          compact
         />
         <StatCard
           labelId="stat_abnormal"
           value={stats.abnormalCount}
           color="#DC143C"
+          compact
         />
         <StatCard
           labelId="stat_avg_confidence"
           value={`${Math.round(stats.avgConfidence * 100)}%`}
+          compact
         />
       </Box>
 
       <Box
         sx={{
           display: "flex",
-          flexWrap: "wrap",
-          gap: 2,
+          flexWrap: { xs: "wrap", md: "nowrap" },
+          gap: 1.5,
           flex: 1,
+          minHeight: 0,
         }}
       >
-        <Box sx={{ flex: "1 1 55%", minWidth: 280 }}>
+        <Box sx={{ flex: "1 1 58%", minWidth: 0, minHeight: { xs: 260, md: 0 } }}>
           <StudyTrendChart />
         </Box>
-        <Box sx={{ flex: "1 1 35%", minWidth: 240 }}>
+        <Box sx={{ flex: "1 1 38%", minWidth: 0, minHeight: { xs: 260, md: 0 } }}>
           <FindingDistribution />
         </Box>
       </Box>

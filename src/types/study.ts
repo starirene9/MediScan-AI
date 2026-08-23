@@ -1,10 +1,19 @@
 export type StudyStatus = "Pending" | "Reviewed" | "Abnormal" | "Normal";
 
-export type FindingLabel = "Normal" | "Nodule" | "Pneumonia" | "Other";
+/** Summary label: NIH pathology name or "Normal". */
+export type FindingLabel = string;
+
+export interface PathologyFinding {
+  name: string;
+  score: number;
+  positive: boolean;
+}
 
 export interface Prediction {
   label: FindingLabel;
   confidence: number;
+  findings?: PathologyFinding[];
+  classificationMode?: "nih14" | "grouped" | string;
 }
 
 export interface Study {
@@ -20,4 +29,8 @@ export interface Study {
   imageUrl: string;
   gradCamUrl: string | null;
   notes: string;
+}
+
+export function isNormalPrediction(label: string): boolean {
+  return label === "Normal" || label === "No Finding";
 }

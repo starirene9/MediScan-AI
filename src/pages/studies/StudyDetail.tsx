@@ -8,7 +8,6 @@ import {
   TextField,
   Tooltip,
   Typography,
-  Alert,
 } from "@mui/material";
 import MicIcon from "@mui/icons-material/Mic";
 import StopIcon from "@mui/icons-material/Stop";
@@ -19,9 +18,8 @@ import { useIntl } from "react-intl";
 import { AppDispatch, RootState } from "../../store/store";
 import {
   fetchStudiesData,
-  fetchStudyById,
   selectStudy,
-  saveStudyNotes,
+  updateStudy,
 } from "../../features/studies/studies-slice";
 import ImageViewer from "../../components/shared/ImageViewer";
 import PredictionPanel from "../../components/shared/PredictionPanel";
@@ -37,41 +35,25 @@ const StudyDetail = () => {
   const study = id ? studies[id] : null;
   const [notes, setNotes] = useState("");
   const [listening, setListening] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState<string | null>(null);
   const { startListening, stopListening } = useSpeechToText((text) =>
     setNotes((prev) => prev + text)
   );
 
   useEffect(() => {
-    if (Object.keys(studies).length === 0) {
-      dispatch(fetchStudiesData());
-    }
-  }, [dispatch, studies]);
+    dispatch(fetchStudiesData());
+  }, [dispatch]);
 
   useEffect(() => {
-    if (!id) return;
-    if (study) {
-      dispatch(selectStudy(id));
-      return;
-    }
-    dispatch(fetchStudyById(id));
-  }, [id, dispatch, study]);
+    if (id) dispatch(selectStudy(id));
+  }, [id, dispatch]);
 
   useEffect(() => {
     if (study) setNotes(study.notes);
   }, [study]);
 
-  const handleSaveNotes = async () => {
-    if (!study) return;
-    setSaving(true);
-    setSaveError(null);
-    try {
-      await dispatch(saveStudyNotes({ id: study.id, notes })).unwrap();
-    } catch (err) {
-      setSaveError(err instanceof Error ? err.message : "Failed to save notes");
-    } finally {
-      setSaving(false);
+  const handleSaveNotes = () => {
+    if (study) {
+      dispatch(updateStudy({ id: study.id, notes }));
     }
   };
 
@@ -114,12 +96,6 @@ const StudyDetail = () => {
       </Box>
 
       {study && <StudyMetadataBar study={study} />}
-
-      {saveError && (
-        <Alert severity="error" onClose={() => setSaveError(null)}>
-          {saveError}
-        </Alert>
-      )}
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, flex: 1 }}>
         <Paper sx={{ flex: "1 1 45%", p: 2, minWidth: 280 }}>
@@ -165,12 +141,7 @@ const StudyDetail = () => {
                   )}
                 </IconButton>
               </Tooltip>
-              <Button
-                variant="outlined"
-                size="small"
-                disabled={saving}
-                onClick={handleSaveNotes}
-              >
+              <Button variant="outlined" size="small" onClick={handleSaveNotes}>
                 {intl.formatMessage({ id: "save_notes" })}
               </Button>
             </Box>

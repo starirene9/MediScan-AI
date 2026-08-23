@@ -1,5 +1,6 @@
 import { Chip } from "@mui/material";
 import { FindingLabel } from "../../types/study";
+import { isNormalPrediction } from "../../types/study";
 
 interface ConfidenceChipProps {
   label: FindingLabel;
@@ -9,23 +10,20 @@ interface ConfidenceChipProps {
 const getChipColor = (
   label: FindingLabel
 ): "success" | "error" | "warning" | "default" => {
-  switch (label) {
-    case "Normal":
-      return "success";
-    case "Nodule":
-      return "error";
-    case "Pneumonia":
-      return "warning";
-    default:
-      return "default";
+  if (isNormalPrediction(label)) return "success";
+  if (label === "Pneumonia" || label === "Infiltration" || label === "Consolidation") {
+    return "warning";
   }
+  if (label === "Nodule" || label === "Mass") return "error";
+  return "default";
 };
 
 const ConfidenceChip = ({ label, confidence }: ConfidenceChipProps) => {
   const percent = Math.round(confidence * 100);
+  const display = label.replace(/_/g, " ");
   return (
     <Chip
-      label={`${label} (${percent}%)`}
+      label={`${display} (${percent}%)`}
       color={getChipColor(label)}
       size="small"
       sx={{ fontWeight: 600 }}

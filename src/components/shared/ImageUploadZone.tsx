@@ -4,14 +4,16 @@ import { useIntl } from "react-intl";
 
 interface ImageUploadZoneProps {
   imageUrl: string | null;
-  onImageChange: (previewUrl: string, file: File) => void;
+  onImageChange: (url: string, file: File) => void;
   label?: string;
+  fillHeight?: boolean;
 }
 
 const ImageUploadZone = ({
   imageUrl,
   onImageChange,
   label,
+  fillHeight = false,
 }: ImageUploadZoneProps) => {
   const intl = useIntl();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -46,7 +48,13 @@ const ImageUploadZone = ({
   };
 
   return (
-    <Box>
+    <Box
+      sx={
+        fillHeight
+          ? { flex: 1, minHeight: 240, display: "flex", flexDirection: "column" }
+          : undefined
+      }
+    >
       {label && (
         <Typography
           variant="subtitle1"
@@ -63,7 +71,7 @@ const ImageUploadZone = ({
         onDragLeave={() => setIsDragging(false)}
         sx={{
           border: `2px dashed ${isDragging ? "#1976d2" : "gray"}`,
-          height: 360,
+          ...(fillHeight ? { flex: 1, minHeight: 200 } : { height: 360 }),
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -93,7 +101,7 @@ const ImageUploadZone = ({
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/png,image/jpeg,image/webp,image/gif"
+          accept="image/*"
           style={{ display: "none" }}
           onChange={handleFileInputChange}
         />

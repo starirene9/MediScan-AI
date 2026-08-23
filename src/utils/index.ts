@@ -1,7 +1,19 @@
 export const FINDING_COLORS: Record<string, string> = {
   Normal: "#006400",
   Nodule: "#DC143C",
+  Mass: "#B22222",
   Pneumonia: "#FF4500",
+  Infiltration: "#FF6347",
+  Consolidation: "#E85D04",
+  Effusion: "#1E90FF",
+  Cardiomegaly: "#4169E1",
+  Atelectasis: "#6A5ACD",
+  Edema: "#20B2AA",
+  Emphysema: "#2E8B57",
+  Fibrosis: "#8B4513",
+  Pneumothorax: "#FF1493",
+  Pleural_Thickening: "#708090",
+  Hernia: "#A0522D",
   Other: "#1E90FF",
 };
 

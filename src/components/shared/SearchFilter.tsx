@@ -6,6 +6,8 @@ interface SearchFilterProps {
   setSearchTerm: (value: string) => void;
   label?: string;
   placeholder?: string;
+  showLabel?: boolean;
+  maxWidth?: number | string | { xs?: string | number; sm?: string | number; md?: string | number; lg?: string | number };
 }
 
 export const SearchFilter: React.FC<SearchFilterProps> = ({
@@ -13,18 +15,21 @@ export const SearchFilter: React.FC<SearchFilterProps> = ({
   setSearchTerm,
   label = "Search",
   placeholder,
+  showLabel = true,
+  maxWidth,
 }) => {
   return (
-    <Box sx={{ width: "100%" }}>
-      <Box sx={{ width: { xs: "100%", sm: "50%", md: "50%", lg: "50%" } }}>
+    <Box sx={{ width: "100%", minWidth: 0 }}>
+      <Box sx={{ width: "100%", maxWidth: maxWidth ?? { xs: "100%", sm: "100%" } }}>
         <TextField
           fullWidth
-          label={label}
-          placeholder={placeholder}
+          label={showLabel ? label : undefined}
+          placeholder={placeholder ?? (showLabel ? undefined : label)}
           variant="outlined"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           size="small"
+          InputLabelProps={showLabel ? undefined : { shrink: false }}
         />
       </Box>
     </Box>

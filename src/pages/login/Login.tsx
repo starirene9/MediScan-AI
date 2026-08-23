@@ -11,9 +11,9 @@ import {
   Box,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import BiotechIcon from "@mui/icons-material/Biotech";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { AuthProps } from "../../App";
+import BrandLogo from "../../components/shared/BrandLogo";
 import { APP_NAME } from "../../config/features";
 import { useIntl } from "react-intl";
 
@@ -61,12 +61,12 @@ const Login: React.FC<AuthProps> = ({ setIsAuthenticatedLS, setLocale }) => {
   return (
     <Container maxWidth="xs" sx={{ mt: 20 }}>
       <Paper elevation={4} sx={{ p: 4, textAlign: "center", borderRadius: 2 }}>
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
-          <BiotechIcon sx={{ fontSize: 48, color: "var(--color-azure)" }} />
+        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 2, gap: 1 }}>
+          <BrandLogo size={72} showName={false} href={false} />
+          <Typography variant="h5" fontWeight={700}>
+            {APP_NAME}
+          </Typography>
         </Box>
-        <Typography variant="h5" fontWeight={700} sx={{ mb: 0.5 }}>
-          {APP_NAME}
-        </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
           {intl.formatMessage({ id: "login_subtitle" })}
         </Typography>

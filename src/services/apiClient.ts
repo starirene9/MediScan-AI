@@ -73,7 +73,14 @@ export async function createStudy(payload: {
 
 export async function patchStudy(
   id: string,
-  payload: { notes?: string; status?: Study["status"] }
+  payload: {
+    notes?: string;
+    status?: Study["status"];
+    patientName?: string;
+    age?: number;
+    gender?: string;
+    modality?: string;
+  }
 ): Promise<Study> {
   return normalizeStudy(
     await request<Study>(`/api/studies/${id}`, {
@@ -82,6 +89,10 @@ export async function patchStudy(
       body: JSON.stringify(payload),
     })
   );
+}
+
+export async function deleteStudy(id: string): Promise<void> {
+  await request<void>(`/api/studies/${id}`, { method: "DELETE" });
 }
 
 export interface AnalyzeApiResponse {

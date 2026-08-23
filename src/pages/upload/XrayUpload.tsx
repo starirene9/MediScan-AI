@@ -11,7 +11,6 @@ import {
 } from "@mui/material";
 import MicIcon from "@mui/icons-material/Mic";
 import StopIcon from "@mui/icons-material/Stop";
-import BiotechIcon from "@mui/icons-material/Biotech";
 import { useIntl } from "react-intl";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -23,7 +22,7 @@ import PredictionPanel from "../../components/shared/PredictionPanel";
 import useSpeechToText from "../../hooks/useSpeechToText";
 import { runAnalysis } from "../../services/mockAiService";
 import { FEATURES } from "../../config/features";
-import { Prediction } from "../../types/study";
+import { Prediction, isNormalPrediction } from "../../types/study";
 
 const XrayUpload = () => {
   const intl = useIntl();
@@ -33,6 +32,7 @@ const XrayUpload = () => {
   const [file, setFile] = useState<File | null>(null);
   const [serverImageUrl, setServerImageUrl] = useState<string | null>(null);
   const [patientName, setPatientName] = useState("");
+  const [patientNameError, setPatientNameError] = useState(false);
   const [notes, setNotes] = useState("");
   const [analyzing, setAnalyzing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -45,9 +45,19 @@ const XrayUpload = () => {
   );
 
   const displayImageUrl = serverImageUrl || previewUrl;
+  const hasImage = Boolean(previewUrl || file);
+  const hasPatientName = patientName.trim().length > 0;
+  const canAnalyze = hasImage && !analyzing;
 
   const handleAnalyze = async () => {
-    if (!previewUrl) return;
+    if (!hasImage || !previewUrl) {
+      setError(intl.formatMessage({ id: "upload_requires_image" }));
+      return;
+    }
+    if (!hasPatientName) {
+      setPatientNameError(true);
+      return;
+    }
     setAnalyzing(true);
     setError(null);
     setPrediction(null);
@@ -57,7 +67,7 @@ const XrayUpload = () => {
       const result = await runAnalysis({
         file,
         previewUrl,
-        patientName,
+        patientName: patientName.trim(),
         notes,
       });
       setPrediction(result.prediction);
@@ -72,17 +82,21 @@ const XrayUpload = () => {
 
   const handleSaveStudy = async () => {
     if (!prediction || !displayImageUrl) return;
+    if (!hasPatientName) {
+      setPatientNameError(true);
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
       const study = await dispatch(
         saveStudyToWorklist({
           patientId: null,
-          patientName: patientName || "Unknown Patient",
+          patientName: patientName.trim(),
           age: 0,
           gender: "Unknown",
           modality: "Chest X-ray",
-          status: prediction.label === "Normal" ? "Normal" : "Abnormal",
+          status: isNormalPrediction(prediction.label) ? "Normal" : "Abnormal",
           prediction,
           imageUrl: serverImageUrl || displayImageUrl,
           gradCamUrl,
@@ -109,18 +123,22 @@ const XrayUpload = () => {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2, height: "100%" }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-        <BiotechIcon sx={{ color: "var(--color-navy)" }} />
+      <Box>
         <Typography variant="h6" sx={{ color: "var(--color-navy)" }}>
           {intl.formatMessage({ id: "upload_xray" })}
         </Typography>
+        {!FEATURES.USE_MOCK_AI && (
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            {intl.formatMessage({ id: "upload_workflow_hint" })}
+          </Typography>
+        )}
       </Box>
 
-      <Alert severity={FEATURES.USE_MOCK_AI ? "info" : "success"} sx={{ py: 0.5 }}>
-        {intl.formatMessage({
-          id: FEATURES.USE_MOCK_AI ? "mock_ai_notice" : "api_ai_notice",
-        })}
-      </Alert>
+      {FEATURES.USE_MOCK_AI && (
+        <Alert severity="info" sx={{ py: 0.5 }}>
+          {intl.formatMessage({ id: "mock_ai_notice" })}
+        </Alert>
+      )}
 
       {error && (
         <Alert severity="error" onClose={() => setError(null)}>
@@ -128,115 +146,140 @@ const XrayUpload = () => {
         </Alert>
       )}
 
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, flex: 1 }}>
-        <Paper sx={{ flex: "1 1 45%", p: 2, minWidth: 280 }}>
-          <ImageUploadZone
-            imageUrl={previewUrl}
-            onImageChange={(url, selectedFile) => {
-              setPreviewUrl(url);
-              setFile(selectedFile);
-              setPrediction(null);
-              setGradCamUrl(null);
-              setServerImageUrl(null);
-              setError(null);
-            }}
-            label={intl.formatMessage({ id: "upload_xray_image" })}
-          />
-          <TextField
-            fullWidth
-            label={intl.formatMessage({ id: "patient_name" })}
-            value={patientName}
-            onChange={(e) => setPatientName(e.target.value)}
-            sx={{ mt: 2 }}
-            size="small"
-          />
-          <Button
-            variant="contained"
-            fullWidth
-            sx={{ mt: 2 }}
-            disabled={!previewUrl || analyzing}
-            onClick={handleAnalyze}
-          >
-            {analyzing
-              ? intl.formatMessage({ id: "analyzing" })
-              : intl.formatMessage({ id: "run_ai_analysis" })}
-          </Button>
-        </Paper>
-
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, flex: 1, minHeight: 0 }}>
         <Box
           sx={{
-            flex: "1 1 45%",
-            display: "flex",
-            flexDirection: "column",
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
             gap: 2,
-            minWidth: 280,
+            alignItems: "stretch",
           }}
         >
-          <Paper sx={{ p: 2 }}>
+          <Paper
+            sx={{
+              p: 2,
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              minWidth: 0,
+            }}
+          >
+            <ImageUploadZone
+              fillHeight
+              imageUrl={previewUrl}
+              onImageChange={(url, selectedFile) => {
+                setPreviewUrl(url);
+                setFile(selectedFile);
+                setPrediction(null);
+                setGradCamUrl(null);
+                setServerImageUrl(null);
+                setError(null);
+              }}
+              label={intl.formatMessage({ id: "upload_xray_image" })}
+            />
+            <TextField
+              fullWidth
+              required
+              label={intl.formatMessage({ id: "patient_name" })}
+              value={patientName}
+              onChange={(e) => {
+                setPatientName(e.target.value);
+                if (e.target.value.trim()) setPatientNameError(false);
+              }}
+              sx={{ mt: 2 }}
+              size="small"
+              error={patientNameError && !hasPatientName}
+              helperText={
+                patientNameError && !hasPatientName
+                  ? intl.formatMessage({ id: "upload_requires_patient_name" })
+                  : " "
+              }
+            />
+            <Button
+              variant="contained"
+              fullWidth
+              sx={{ mt: 2 }}
+              disabled={!canAnalyze}
+              onClick={handleAnalyze}
+            >
+              {analyzing
+                ? intl.formatMessage({ id: "analyzing" })
+                : intl.formatMessage({ id: "run_ai_analysis" })}
+            </Button>
+          </Paper>
+
+          <Paper
+            sx={{
+              p: 2,
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              minWidth: 0,
+            }}
+          >
             <Typography
               variant="subtitle1"
               sx={{ mb: 2, color: "var(--color-navy)" }}
             >
               {intl.formatMessage({ id: "ai_prediction" })}
             </Typography>
-            <PredictionPanel prediction={prediction} loading={analyzing} />
+            <Box sx={{ flex: 1, minHeight: 0, overflow: "auto" }}>
+              <PredictionPanel prediction={prediction} loading={analyzing} />
+            </Box>
           </Paper>
+        </Box>
 
-          {prediction && displayImageUrl && (
-            <Paper sx={{ p: 2 }}>
-              <Typography
-                variant="subtitle1"
-                sx={{ mb: 1, color: "var(--color-navy)" }}
-              >
-                {intl.formatMessage({ id: "gradcam_preview" })}
-              </Typography>
-              <ImageViewer
-                imageUrl={displayImageUrl}
-                gradCamUrl={gradCamUrl}
-              />
-            </Paper>
-          )}
-
-          <Paper sx={{ p: 2, position: "relative" }}>
+        {prediction && displayImageUrl && (
+          <Paper sx={{ p: 2, width: "100%" }}>
             <Typography
               variant="subtitle1"
               sx={{ mb: 1, color: "var(--color-navy)" }}
             >
-              {intl.formatMessage({ id: "radiologist_notes" })}
+              {intl.formatMessage({ id: "gradcam_preview" })}
             </Typography>
-            <TextField
-              multiline
-              rows={4}
-              fullWidth
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder={intl.formatMessage({ id: "notes_placeholder" })}
-            />
-            <Tooltip title={listening ? "Stop" : "Voice input"}>
-              <IconButton
-                onClick={toggleMic}
-                sx={{ position: "absolute", bottom: 16, right: 16 }}
-              >
-                {listening ? (
-                  <StopIcon color="error" />
-                ) : (
-                  <MicIcon color="primary" />
-                )}
-              </IconButton>
-            </Tooltip>
+            <ImageViewer imageUrl={displayImageUrl} gradCamUrl={gradCamUrl} />
           </Paper>
+        )}
 
-          {prediction && (
-            <Button
-              variant="contained"
-              color="success"
-              disabled={saving}
-              onClick={handleSaveStudy}
+        <Paper sx={{ p: 2, position: "relative" }}>
+          <Typography
+            variant="subtitle1"
+            sx={{ mb: 1, color: "var(--color-navy)" }}
+          >
+            {intl.formatMessage({ id: "radiologist_notes" })}
+          </Typography>
+          <TextField
+            multiline
+            rows={4}
+            fullWidth
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder={intl.formatMessage({ id: "notes_placeholder" })}
+          />
+          <Tooltip title={listening ? "Stop" : "Voice input"}>
+            <IconButton
+              onClick={toggleMic}
+              sx={{ position: "absolute", bottom: 16, right: 16 }}
             >
-              {intl.formatMessage({ id: "save_to_worklist" })}
-            </Button>
-          )}
-        </Box>
+              {listening ? (
+                <StopIcon color="error" />
+              ) : (
+                <MicIcon color="primary" />
+              )}
+            </IconButton>
+          </Tooltip>
+        </Paper>
+
+        {prediction && (
+          <Button
+            variant="contained"
+            color="success"
+            disabled={saving}
+            onClick={handleSaveStudy}
+          >
+            {intl.formatMessage({ id: "save_to_worklist" })}
+          </Button>
+        )}
       </Box>
     </Box>
   );

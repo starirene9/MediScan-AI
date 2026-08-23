@@ -1,8 +1,10 @@
 /**
  * Feature flags for branch-based development.
  *
- * - USE_MOCK_AI: false → call FastAPI via Vite proxy (/api, /uploads)
- * - ENABLE_GRADCAM_API: reserved for dedicated Grad-CAM endpoint later
+ * Branch strategy:
+ * - refactor/mediscan-foundation  → UI only, mocks enabled
+ * - feature/fastapi-backend       → USE_MOCK_AI = false, wire real API (current)
+ * - feature/gradcam-viewer        → ENABLE_GRADCAM_API = true
  */
 export const FEATURES = {
   USE_MOCK_AI: false,

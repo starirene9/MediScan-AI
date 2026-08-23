@@ -3,6 +3,7 @@ import { RootState } from "../../store/store";
 import { Study } from "../../types/study";
 import {
   createStudy,
+  deleteStudy,
   fetchStudies,
   fetchStudy,
   patchStudy,
@@ -14,6 +15,7 @@ interface StudiesState {
   loading: boolean;
   error: string | null;
   selectedStudyId: string | null;
+  mutating: boolean;
 }
 
 const initialState: StudiesState = {
@@ -21,6 +23,7 @@ const initialState: StudiesState = {
   loading: false,
   error: null,
   selectedStudyId: null,
+  mutating: false,
 };
 
 function toRecord(list: Study[]): { [id: string]: Study } {
@@ -56,6 +59,37 @@ export const saveStudyNotes = createAsyncThunk(
       return { id, notes } as Partial<Study> & { id: string };
     }
     return patchStudy(id, { notes });
+  }
+);
+
+export const updateStudyFields = createAsyncThunk(
+  "studies/updateStudyFields",
+  async ({
+    id,
+    ...payload
+  }: {
+    id: string;
+    notes?: string;
+    status?: Study["status"];
+    patientName?: string;
+    age?: number;
+    gender?: string;
+    modality?: string;
+  }) => {
+    if (FEATURES.USE_MOCK_AI) {
+      return { id, ...payload } as Study;
+    }
+    return patchStudy(id, payload);
+  }
+);
+
+export const removeStudy = createAsyncThunk(
+  "studies/removeStudy",
+  async (id: string) => {
+    if (!FEATURES.USE_MOCK_AI) {
+      await deleteStudy(id);
+    }
+    return id;
   }
 );
 
@@ -100,7 +134,7 @@ export const studiesSlice = createSlice({
   name: "studies",
   initialState,
   reducers: {
-    selectStudy(state, action: PayloadAction<string>) {
+    selectStudy(state, action: PayloadAction<string | null>) {
       state.selectedStudyId = action.payload;
     },
     updateStudy(
@@ -115,6 +149,12 @@ export const studiesSlice = createSlice({
     },
     addStudy(state, action: PayloadAction<Study>) {
       state.studies[action.payload.id] = action.payload;
+    },
+    removeStudyLocal(state, action: PayloadAction<string>) {
+      delete state.studies[action.payload];
+      if (state.selectedStudyId === action.payload) {
+        state.selectedStudyId = null;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -144,6 +184,34 @@ export const studiesSlice = createSlice({
           };
         }
       })
+      .addCase(updateStudyFields.pending, (state) => {
+        state.mutating = true;
+        state.error = null;
+      })
+      .addCase(updateStudyFields.fulfilled, (state, action) => {
+        state.mutating = false;
+        state.studies[action.payload.id] = action.payload;
+      })
+      .addCase(updateStudyFields.rejected, (state, action) => {
+        state.mutating = false;
+        state.error = action.error.message || "Failed to update study";
+      })
+      .addCase(removeStudy.pending, (state) => {
+        state.mutating = true;
+        state.error = null;
+      })
+      .addCase(removeStudy.fulfilled, (state, action) => {
+        state.mutating = false;
+        delete state.studies[action.payload];
+        if (state.selectedStudyId === action.payload) {
+          const remaining = Object.keys(state.studies);
+          state.selectedStudyId = remaining[0] ?? null;
+        }
+      })
+      .addCase(removeStudy.rejected, (state, action) => {
+        state.mutating = false;
+        state.error = action.error.message || "Failed to delete study";
+      })
       .addCase(saveStudyToWorklist.fulfilled, (state, action) => {
         state.studies[action.payload.id] = action.payload;
         state.selectedStudyId = action.payload.id;
@@ -151,7 +219,8 @@ export const studiesSlice = createSlice({
   },
 });
 
-export const { selectStudy, updateStudy, addStudy } = studiesSlice.actions;
+export const { selectStudy, updateStudy, addStudy, removeStudyLocal } =
+  studiesSlice.actions;
 
 export default studiesSlice.reducer;
 

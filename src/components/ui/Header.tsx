@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { IconButton, Typography } from "@mui/material";
+import { IconButton } from "@mui/material";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { AuthProps } from "../../App";
 import userImage from "../../assets/user.png";
 import DigitalClock from "../shared/DigitalClock";
+import BrandLogo from "../shared/BrandLogo";
 import VariantButtonGroup from "../shared/ButtonGroup";
 import { languageButtons, languageCodes } from "../../utils";
 import { useIntl } from "react-intl";
-import { APP_NAME } from "../../config/features";
 
 interface HeaderProps extends AuthProps {
   setLocale: (lang: string) => void;
@@ -21,9 +21,13 @@ const Header: React.FC<HeaderProps> = ({ setIsAuthenticatedLS, setLocale }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const [storedUserName] = useLocalStorage("username", "Guest");
-  const [language, setLanguage] = useState("en");
   const intl = useIntl();
+  const [language, setLanguage] = useState(intl.locale);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setLanguage(intl.locale);
+  }, [intl.locale]);
 
   const buttonStyles = languageCodes.map((code) => ({
     backgroundColor:
@@ -59,12 +63,7 @@ const Header: React.FC<HeaderProps> = ({ setIsAuthenticatedLS, setLocale }) => {
   return (
     <header className="bg-blue-800 p-4 text-white fixed w-full top-0 h-20 flex items-center justify-between px-6">
       <div className="flex items-center gap-6">
-        <Typography
-          variant="h5"
-          sx={{ fontWeight: 700, letterSpacing: 1, color: "white" }}
-        >
-          {APP_NAME}
-        </Typography>
+        <BrandLogo size={44} nameVariant="h5" />
         <DigitalClock />
       </div>
       <div className="flex items-center gap-8">

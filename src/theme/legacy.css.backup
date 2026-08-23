@@ -1,0 +1,45 @@
+/*
+ * LEGACY THEME SNAPSHOT — for manual rollback reference.
+ *
+ * To restore the old look:
+ *   1. Set ACTIVE_THEME = "legacy" in src/theme/config.ts
+ *   2. Or paste these values back into :root in src/index.css
+ */
+
+:root {
+  --color-navy: #3c4b64;
+  --color-dark-navy: #2b3648;
+  --color-light-navy: #4f5d75;
+
+  --color-blue: #007bff;
+  --color-dark-blue: #0056b3;
+  --color-light-blue: #66b3ff;
+  --color-sky-blue: #87ceeb;
+  --color-cyan: #17a2b8;
+
+  --color-gray: #6c757d;
+  --color-dark-gray: #495057;
+  --color-light-gray: #adb5bd;
+  --color-silver: #c0c5ce;
+  --color-charcoal: #343a40;
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-soft-white: #f8f9fa;
+  --color-light-silver: #dee2e6;
+
+  --color-electric-blue: #009dff;
+  --color-azure: #0080ff;
+  --color-steel-blue: #4682b4;
+  --color-midnight-blue: #191970;
+  --color-indigo: #4b0082;
+
+  /* Layout chrome (Tailwind equivalents used before theme system) */
+  --color-shell: #1e40af;   /* header bg-blue-800 */
+  --color-nav: #1f2937;     /* nav bg-gray-800 */
+  --color-nav-hover: #374151;
+  --color-nav-toggle: #111827;
+  --color-nav-toggle-hover: #374151;
+  --color-footer: #111827;  /* footer bg-gray-900 */
+  --color-surface: #f3f4f6; /* main bg-gray-100 */
+}

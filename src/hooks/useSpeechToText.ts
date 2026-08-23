@@ -1,8 +1,16 @@
 import { useRef } from "react";
+import { useIntl } from "react-intl";
+
+const SPEECH_RECOGNITION_LANG: Record<string, string> = {
+  ko: "ko-KR",
+  en: "en-US",
+  es: "es-ES",
+};
 
 const useSpeechToText = (
   onTranscript: (text: string) => void
 ) => {
+  const intl = useIntl();
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   const startListening = () => {
@@ -15,7 +23,8 @@ const useSpeechToText = (
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
+    recognition.lang =
+      SPEECH_RECOGNITION_LANG[intl.locale] ?? SPEECH_RECOGNITION_LANG.en;
     recognition.continuous = true;
     recognition.interimResults = true;
 
