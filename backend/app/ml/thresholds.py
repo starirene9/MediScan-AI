@@ -7,7 +7,7 @@ from pathlib import Path
 
 from app.ml.pathologies import NIH14_PATHOLOGIES
 
-DEFAULT_THRESHOLD = 0.55
+DEFAULT_THRESHOLD = 0.5
 DEFAULT_THRESHOLDS_PATH = (
     Path(__file__).resolve().parent.parent.parent / "models" / "pathology_thresholds.json"
 )

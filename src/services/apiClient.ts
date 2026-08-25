@@ -1,4 +1,5 @@
 import { Study } from "../types/study";
+import type { GradCamMeta } from "../types/study";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, init);
@@ -99,6 +100,7 @@ export interface AnalyzeApiResponse {
   prediction: Study["prediction"];
   imageUrl: string;
   gradCamUrl: string | null;
+  gradCamMeta: GradCamMeta | null;
   study: Study | null;
 }
 

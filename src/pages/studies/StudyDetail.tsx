@@ -105,6 +105,14 @@ const StudyDetail = () => {
           <ImageViewer
             imageUrl={study?.imageUrl ?? null}
             gradCamUrl={study?.gradCamUrl}
+            gradCamMeta={
+              study?.gradCamUrl && study.prediction
+                ? {
+                    finding: study.prediction.label,
+                    confidence: study.prediction.confidence,
+                  }
+                : null
+            }
           />
         </Paper>
 

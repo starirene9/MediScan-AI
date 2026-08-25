@@ -65,10 +65,19 @@ class StudyUpdate(BaseModel):
     modality: str | None = None
 
 
+class GradCamMeta(BaseModel):
+    """Where the model focused for the summary finding (overlay badge)."""
+
+    finding: str
+    confidence: float = Field(ge=0, le=1)
+    centroid: dict[str, float]  # {"x": 0–1, "y": 0–1}, top-left origin
+
+
 class AnalyzeResponse(BaseModel):
     prediction: Prediction
     imageUrl: str
     gradCamUrl: str | None = None
+    gradCamMeta: GradCamMeta | None = None
     study: Study | None = None
 
 

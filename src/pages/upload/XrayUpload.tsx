@@ -22,7 +22,7 @@ import PredictionPanel from "../../components/shared/PredictionPanel";
 import useSpeechToText from "../../hooks/useSpeechToText";
 import { runAnalysis } from "../../services/mockAiService";
 import { FEATURES } from "../../config/features";
-import { Prediction, isNormalPrediction } from "../../types/study";
+import { GradCamMeta, Prediction, isNormalPrediction } from "../../types/study";
 
 const XrayUpload = () => {
   const intl = useIntl();
@@ -39,6 +39,7 @@ const XrayUpload = () => {
   const [error, setError] = useState<string | null>(null);
   const [prediction, setPrediction] = useState<Prediction | null>(null);
   const [gradCamUrl, setGradCamUrl] = useState<string | null>(null);
+  const [gradCamMeta, setGradCamMeta] = useState<GradCamMeta | null>(null);
   const [listening, setListening] = useState(false);
   const { startListening, stopListening } = useSpeechToText((text) =>
     setNotes((prev) => prev + text)
@@ -62,6 +63,7 @@ const XrayUpload = () => {
     setError(null);
     setPrediction(null);
     setGradCamUrl(null);
+    setGradCamMeta(null);
     setServerImageUrl(null);
     try {
       const result = await runAnalysis({
@@ -72,6 +74,7 @@ const XrayUpload = () => {
       });
       setPrediction(result.prediction);
       setGradCamUrl(result.gradCamUrl);
+      setGradCamMeta(result.gradCamMeta);
       setServerImageUrl(result.imageUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Analysis failed");
@@ -167,6 +170,7 @@ const XrayUpload = () => {
                 setFile(selectedFile);
                 setPrediction(null);
                 setGradCamUrl(null);
+                setGradCamMeta(null);
                 setServerImageUrl(null);
                 setError(null);
               }}
@@ -232,7 +236,11 @@ const XrayUpload = () => {
             >
               {intl.formatMessage({ id: "gradcam_preview" })}
             </Typography>
-            <ImageViewer imageUrl={displayImageUrl} gradCamUrl={gradCamUrl} />
+            <ImageViewer
+              imageUrl={displayImageUrl}
+              gradCamUrl={gradCamUrl}
+              gradCamMeta={gradCamMeta}
+            />
           </Paper>
         )}
 

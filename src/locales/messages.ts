@@ -100,6 +100,10 @@ export const messages: Record<string, Record<string, string>> = {
     mock_ai_notice:
       "UI demo mode — AI results are mocked. Real inference will connect on the FastAPI branch.",
     gradcam_preview: "Grad-CAM Preview",
+    gradcam_disclaimer:
+      "Highlights regions the model attended to for this prediction — for decision support, not confirmed lesion localization.",
+    gradcam_not_applicable:
+      "Grad-CAM is shown for abnormal findings only.",
     login_subtitle: "AI-powered chest X-ray analysis platform",
     clinical_disclaimer:
       "For physician decision support only — not a definitive diagnosis. Final interpretation must be made by a qualified clinician.",
@@ -208,6 +212,9 @@ export const messages: Record<string, Record<string, string>> = {
     mock_ai_notice:
       "UI 데모 모드 — AI 결과는 mock입니다. FastAPI 브랜치에서 실제 추론이 연결됩니다.",
     gradcam_preview: "Grad-CAM 미리보기",
+    gradcam_disclaimer:
+      "이 예측을 위해 모델이 주목한 영역을 표시합니다 — 판독 참고용이며, 확정된 병변 위치가 아닙니다.",
+    gradcam_not_applicable: "Grad-CAM은 이상 소견이 있을 때만 표시됩니다.",
     login_subtitle: "AI 기반 흉부 X-ray 분석 플랫폼",
     clinical_disclaimer:
       "의사 보조 도구입니다. 확진이 아니며, 최종 판독은 반드시 자격이 있는 의료인이 수행해야 합니다.",
@@ -315,6 +322,10 @@ export const messages: Record<string, Record<string, string>> = {
     mock_ai_notice:
       "Modo demo UI — los resultados IA son simulados. La inferencia real se conectará en la rama FastAPI.",
     gradcam_preview: "Vista previa Grad-CAM",
+    gradcam_disclaimer:
+      "Resalta las regiones a las que el modelo atendió para esta predicción — apoyo a la decisión, no localización confirmada de la lesión.",
+    gradcam_not_applicable:
+      "Grad-CAM solo se muestra cuando hay hallazgos anormales.",
     login_subtitle: "Plataforma de análisis de radiografía de tórax con IA",
     clinical_disclaimer:
       "Solo como apoyo a la decisión médica — no es un diagnóstico definitivo. La interpretación final debe realizarla un clínico cualificado.",

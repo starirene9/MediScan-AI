@@ -13,6 +13,7 @@ import torchvision.transforms as T
 from PIL import Image
 
 from app.config import settings
+from app.ml.gradcam import generate_gradcam_image, resolve_target_index
 from app.ml.pathologies import (
     GROUP_MAP,
     MODEL_TO_NIH,
@@ -21,7 +22,8 @@ from app.ml.pathologies import (
     NORMAL_SUMMARY_LABEL,
 )
 from app.ml.thresholds import load_thresholds
-from app.models.schemas import FindingLabel, PathologyFinding, Prediction
+from app.models.schemas import FindingLabel, GradCamMeta, PathologyFinding, Prediction
+from app.services import storage_service
 
 _model = None
 _model_lock = Lock()
@@ -93,12 +95,19 @@ def _build_findings(
 
 def _summary_from_nih(findings: list[PathologyFinding], threshold: float) -> tuple[str, float]:
     positives = [f for f in findings if f.positive]
-    if not positives:
-        # Confidence that image is Normal ≈ 1 - strongest disease score.
-        top = findings[0].score if findings else 0.0
-        return NO_FINDING_LABEL, round(max(0.0, min(1.0, 1.0 - top)), 4)
-    top = positives[0]
-    return top.name, top.score
+    if positives:
+        top = positives[0]
+        return top.name, top.score
+
+    # Screening fallback: if no class beat its JSON cutoff, still surface the
+    # strongest finding when it is at least `threshold` (default 0.5).
+    # The previous 0.85–0.90 cuts labeled most disease images as Normal.
+    if findings and findings[0].score >= threshold:
+        top = findings[0]
+        return top.name, top.score
+
+    top_score = findings[0].score if findings else 0.0
+    return NO_FINDING_LABEL, round(max(0.0, min(1.0, 1.0 - top_score)), 4)
 
 
 def _summary_grouped(findings: list[PathologyFinding], threshold: float) -> tuple[str, float]:
@@ -152,7 +161,61 @@ def is_normal_label(label: str) -> bool:
     return label in {NO_FINDING_LABEL, NORMAL_SUMMARY_LABEL, "Normal", "No Finding"}
 
 
-def mock_gradcam_url(image_url: str, label: FindingLabel | str) -> str | None:
-    if is_normal_label(str(label)):
+def _gradcam_target(prediction: Prediction) -> str | None:
+    """Pick the pathology class for Grad-CAM; None when Normal / unavailable."""
+    if is_normal_label(prediction.label):
         return None
-    return image_url
+
+    try:
+        resolve_target_index(prediction.label)
+        return prediction.label
+    except ValueError:
+        pass
+
+    for finding in prediction.findings:
+        if finding.positive:
+            try:
+                resolve_target_index(finding.name)
+                return finding.name
+            except ValueError:
+                continue
+    return None
+
+
+def _run_gradcam(
+    image_path: str | Path,
+    target_class: str,
+    confidence: float,
+) -> tuple[str, GradCamMeta]:
+    model = get_model()
+    tensor = preprocess(image_path)
+    result = generate_gradcam_image(
+        model=model,
+        tensor=tensor,
+        image_path=Path(image_path),
+        target_class=target_class,
+    )
+    url = storage_service.save_gradcam_image(result.image)
+    meta = GradCamMeta(
+        finding=target_class,
+        confidence=round(float(confidence), 4),
+        centroid={"x": result.centroid_x, "y": result.centroid_y},
+    )
+    return url, meta
+
+
+async def generate_gradcam_url(
+    image_path: str | Path,
+    prediction: Prediction,
+) -> tuple[str | None, GradCamMeta | None]:
+    """
+    Build a Grad-CAM heatmap URL + focus meta for abnormal predictions.
+
+    Returns (None, None) for Normal or when no valid target class exists.
+    """
+    target = _gradcam_target(prediction)
+    if target is None:
+        return None, None
+    return await asyncio.to_thread(
+        _run_gradcam, image_path, target, prediction.confidence
+    )

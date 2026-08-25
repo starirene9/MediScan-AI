@@ -1,4 +1,4 @@
-import { FindingLabel, Prediction, isNormalPrediction } from "../types/study";
+import { FindingLabel, GradCamMeta, Prediction, isNormalPrediction } from "../types/study";
 import { FEATURES } from "../config/features";
 import { analyzeXray } from "./apiClient";
 
@@ -48,6 +48,7 @@ export interface AnalysisResult {
   prediction: Prediction;
   imageUrl: string;
   gradCamUrl: string | null;
+  gradCamMeta: GradCamMeta | null;
 }
 
 async function resolveUploadFile(
@@ -84,16 +85,25 @@ export async function runAnalysis(params: {
       prediction: result.prediction,
       imageUrl: result.imageUrl,
       gradCamUrl: result.gradCamUrl,
+      gradCamMeta: result.gradCamMeta ?? null,
     };
   }
 
   await new Promise((r) => setTimeout(r, 1500));
   const prediction =
     MOCK_PREDICTIONS[Math.floor(Math.random() * MOCK_PREDICTIONS.length)];
+  const gradCamUrl = getMockGradCamUrl(params.previewUrl, prediction.label);
   return {
     prediction,
     imageUrl: params.previewUrl,
-    gradCamUrl: getMockGradCamUrl(params.previewUrl, prediction.label),
+    gradCamUrl,
+    gradCamMeta: gradCamUrl
+      ? {
+          finding: prediction.label,
+          confidence: prediction.confidence,
+          centroid: { x: 0.5, y: 0.45 },
+        }
+      : null,
   };
 }
 

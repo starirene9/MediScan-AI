@@ -15,7 +15,8 @@ class Settings(BaseSettings):
     inference_model_name: str = "densenet121-res224-all"
 
     # Positive finding cutoff for each NIH pathology score (0–1).
-    pathology_threshold: float = 0.55
+    # Keep this aligned with screening (not the old 0.85–0.90 global-tune cuts).
+    pathology_threshold: float = 0.5
 
     # How to build the single summary `prediction.label`:
     #   nih14   → top positive NIH label, or "Normal"

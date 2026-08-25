@@ -16,6 +16,13 @@ export interface Prediction {
   classificationMode?: "nih14" | "grouped" | string;
 }
 
+export interface GradCamMeta {
+  finding: string;
+  confidence: number;
+  /** Normalized focus point (0–1). Optional on stored studies. */
+  centroid?: { x: number; y: number };
+}
+
 export interface Study {
   id: string;
   patientId: string;

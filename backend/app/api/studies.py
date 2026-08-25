@@ -28,7 +28,10 @@ async def analyze_study(
     image_path = storage_service.resolve_upload_path(image_url)
     prediction = await inference_service.predict(image_path)
 
-    grad_cam_url = inference_service.mock_gradcam_url(image_url, prediction.label)
+    # Phase 1–2 Grad-CAM: heatmap + focus badge meta for abnormal labels.
+    grad_cam_url, grad_cam_meta = await inference_service.generate_gradcam_url(
+        image_path, prediction
+    )
 
     study = None
     if saveToWorklist:
@@ -53,6 +56,7 @@ async def analyze_study(
         prediction=prediction,
         imageUrl=image_url,
         gradCamUrl=grad_cam_url,
+        gradCamMeta=grad_cam_meta,
         study=study,
     )
 

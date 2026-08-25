@@ -1,35 +1,24 @@
 {
   "thresholds": {
-    "Atelectasis": 0.6,
-    "Cardiomegaly": 0.65,
-    "Effusion": 0.6,
-    "Infiltration": 0.65,
-    "Mass": 0.85,
-    "Nodule": 0.6,
-    "Pneumonia": 0.9,
-    "Pneumothorax": 0.55,
-    "Consolidation": 0.65,
-    "Edema": 0.55,
-    "Emphysema": 0.55,
-    "Fibrosis": 0.65,
-    "Pleural_Thickening": 0.55,
-    "Hernia": 0.8
+    "Atelectasis": 0.5,
+    "Cardiomegaly": 0.5,
+    "Effusion": 0.5,
+    "Infiltration": 0.5,
+    "Mass": 0.5,
+    "Nodule": 0.5,
+    "Pneumonia": 0.5,
+    "Pneumothorax": 0.5,
+    "Consolidation": 0.5,
+    "Edema": 0.5,
+    "Emphysema": 0.5,
+    "Fibrosis": 0.5,
+    "Pleural_Thickening": 0.5,
+    "Hernia": 0.5
   },
   "meta": {
-    "tune_n": 600,
-    "tune_seed": 7,
-    "fallback": 0.55,
+    "note": "Screening thresholds. Previous global-tune values (Mass 0.85, Pneumonia 0.90, Hernia 0.80) hid most findings as Normal on mediscan-test.",
+    "fallback": 0.5,
     "model": "densenet121-res224-all",
-    "objective": "global",
-    "details": {
-      "tune_set_metrics": {
-        "exact": 0.505,
-        "primary": 0.5566666666666666,
-        "overlap": 0.6066666666666667,
-        "no_finding": 0.9253246753246753,
-        "macro_f1": 0.15439664080799176,
-        "score": 1.309594831197669
-      }
-    }
+    "objective": "screening-recall"
   }
 }

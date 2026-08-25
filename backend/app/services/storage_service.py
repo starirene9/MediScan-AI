@@ -2,6 +2,7 @@ import uuid
 from pathlib import Path
 
 from fastapi import HTTPException, UploadFile, status
+from PIL import Image
 
 from app.config import settings
 
@@ -26,6 +27,12 @@ def ensure_upload_dir() -> Path:
     return path
 
 
+def ensure_gradcam_dir() -> Path:
+    path = ensure_upload_dir() / "gradcam"
+    path.mkdir(parents=True, exist_ok=True)
+    return path
+
+
 def save_upload(file: UploadFile) -> str:
     content_type = file.content_type or ""
     if content_type not in ALLOWED_CONTENT_TYPES:
@@ -39,6 +46,15 @@ def save_upload(file: UploadFile) -> str:
     dest = upload_dir / filename
     dest.write_bytes(file.file.read())
     return f"/uploads/{filename}"
+
+
+def save_gradcam_image(image: Image.Image, *, suffix: str = ".png") -> str:
+    """Persist a Grad-CAM RGBA heatmap under /uploads/gradcam/ and return its URL."""
+    dest_dir = ensure_gradcam_dir()
+    filename = f"{uuid.uuid4().hex}{suffix}"
+    dest = dest_dir / filename
+    image.save(dest, format="PNG")
+    return f"/uploads/gradcam/{filename}"
 
 
 def resolve_upload_path(image_url: str) -> Path:
