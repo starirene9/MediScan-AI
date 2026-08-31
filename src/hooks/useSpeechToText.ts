@@ -13,16 +13,16 @@ const useSpeechToText = (
   const intl = useIntl();
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
-  const startListening = () => {
-    const SpeechRecognition =
-      window.SpeechRecognition || (window as any).webkitSpeechRecognition;
+  const SpeechRecognitionCtor =
+    window.SpeechRecognition ?? window.webkitSpeechRecognition;
 
-    if (!SpeechRecognition) {
+  const startListening = () => {
+    if (!SpeechRecognitionCtor) {
       alert("Speech recognition is not supported in this browser.");
       return false;
     }
 
-    const recognition = new SpeechRecognition();
+    const recognition = new SpeechRecognitionCtor();
     recognition.lang =
       SPEECH_RECOGNITION_LANG[intl.locale] ?? SPEECH_RECOGNITION_LANG.en;
     recognition.continuous = true;

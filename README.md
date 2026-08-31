@@ -72,5 +72,15 @@ Legacy feature branches (`feature/backend`, `feature/gradcam-viewer`, etc.) are 
 | `npm run dev` | Start Vite dev server |
 | `npm run build` | Typecheck + production build |
 | `npm run lint` | ESLint |
+| `npm run test` | Vitest unit tests |
+
+Backend API tests:
+
+```bash
+cd backend
+source .venv/bin/activate
+pip install -r requirements.txt -r requirements-dev.txt
+pytest
+```
 
 See [backend/README.md](backend/README.md) for API details and ML configuration.
