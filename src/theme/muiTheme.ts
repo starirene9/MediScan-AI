@@ -55,6 +55,19 @@ export const createAppTheme = (palette: AppPalette, mode: ColorMode = "light") =
           },
         },
       },
+      MuiToggleButton: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            textTransform: "none",
+            "&.Mui-selected": {
+              backgroundColor:
+                theme.palette.mode === "dark"
+                  ? "rgba(56, 189, 248, 0.2)"
+                  : undefined,
+            },
+          }),
+        },
+      },
     },
   });
 };

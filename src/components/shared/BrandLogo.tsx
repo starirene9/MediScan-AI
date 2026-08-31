@@ -9,6 +9,7 @@ interface BrandLogoProps {
   nameVariant?: "h5" | "h6" | "subtitle1";
   href?: string | false;
   nameColor?: string;
+  logoBackground?: "white" | "paper";
 }
 
 const BrandLogo = ({
@@ -17,6 +18,7 @@ const BrandLogo = ({
   nameVariant = "h5",
   href = "/",
   nameColor = "white",
+  logoBackground = "white",
 }: BrandLogoProps) => {
   const content = (
     <Box
@@ -36,7 +38,7 @@ const BrandLogo = ({
           width: size,
           height: size,
           borderRadius: 1.5,
-          bgcolor: "white",
+          bgcolor: logoBackground === "paper" ? "background.paper" : "white",
           objectFit: "contain",
           flexShrink: 0,
         }}

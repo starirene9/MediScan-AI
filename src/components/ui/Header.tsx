@@ -3,18 +3,16 @@ import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { IconButton, Tooltip } from "@mui/material";
-import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-import LightModeOutlinedIcon from "@mui/icons-material/LightModeOutlined";
+import { IconButton } from "@mui/material";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { AuthProps } from "../../App";
 import userImage from "../../assets/user.png";
 import DigitalClock from "../shared/DigitalClock";
 import BrandLogo from "../shared/BrandLogo";
 import VariantButtonGroup from "../shared/ButtonGroup";
+import ColorModeToggle from "../shared/ColorModeToggle";
 import { languageButtons, languageCodes } from "../../utils";
 import { useIntl } from "react-intl";
-import { useColorMode } from "../../context/ColorModeContext";
 
 interface HeaderProps extends AuthProps {
   setLocale: (lang: string) => void;
@@ -25,8 +23,6 @@ const Header: React.FC<HeaderProps> = ({ setIsAuthenticatedLS, setLocale }) => {
   const open = Boolean(anchorEl);
   const [storedUserName] = useLocalStorage("username", "Guest");
   const intl = useIntl();
-  const { mode, toggleColorMode } = useColorMode();
-  const isDark = mode === "dark";
   const [language, setLanguage] = useState(intl.locale);
   const navigate = useNavigate();
 
@@ -82,23 +78,7 @@ const Header: React.FC<HeaderProps> = ({ setIsAuthenticatedLS, setLocale }) => {
           variant="text"
           size="small"
         />
-        <Tooltip
-          title={intl.formatMessage({
-            id: isDark ? "dark_mode_on" : "dark_mode_off",
-          })}
-        >
-          <IconButton
-            onClick={toggleColorMode}
-            aria-label={intl.formatMessage({ id: "dark_mode" })}
-            sx={{ color: "var(--color-white)" }}
-          >
-            {isDark ? (
-              <DarkModeOutlinedIcon />
-            ) : (
-              <LightModeOutlinedIcon />
-            )}
-          </IconButton>
-        </Tooltip>
+        <ColorModeToggle iconColor="var(--color-white)" />
         <IconButton onClick={handleOpenMenu} onMouseEnter={handleOpenMenu}>
           <Avatar
             alt={storedUserName}

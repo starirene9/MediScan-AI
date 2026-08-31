@@ -1,4 +1,4 @@
-import { Alert, Box, Chip, Typography, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import { Alert, Box, Chip, Typography, ToggleButton, ToggleButtonGroup, useTheme } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useIntl } from "react-intl";
 import { GradCamMeta } from "../../types/study";
@@ -17,6 +17,7 @@ const ImageViewer = ({
   gradCamMeta = null,
 }: ImageViewerProps) => {
   const intl = useIntl();
+  const theme = useTheme();
   const [view, setView] = useState<ViewerMode>(gradCamUrl ? "overlay" : "original");
 
   useEffect(() => {
@@ -31,7 +32,7 @@ const ImageViewer = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          bgcolor: "grey.100",
+          bgcolor: "action.hover",
           borderRadius: 1,
         }}
       >
@@ -123,10 +124,14 @@ const ImageViewer = ({
                   zIndex: 2,
                   fontWeight: 700,
                   pointerEvents: "none",
-                  bgcolor: "rgba(255, 255, 255, 0.95)",
-                  color: "#b91c1c",
-                  border: "1px solid rgba(185, 28, 28, 0.55)",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
+                  bgcolor:
+                    theme.palette.mode === "dark"
+                      ? "rgba(15, 23, 42, 0.92)"
+                      : "rgba(255, 255, 255, 0.95)",
+                  color: "error.main",
+                  border: "1px solid",
+                  borderColor: "error.main",
+                  boxShadow: theme.shadows[4],
                   "& .MuiChip-label": { px: 1.25 },
                 }}
               />

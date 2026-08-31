@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Container,
+  Box,
   TextField,
   Button,
   Typography,
   IconButton,
   InputAdornment,
   Paper,
-  Box,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import useLocalStorage from "../../hooks/useLocalStorage";
 import { AuthProps } from "../../App";
 import BrandLogo from "../../components/shared/BrandLogo";
+import ColorModeToggle from "../../components/shared/ColorModeToggle";
 import { APP_NAME } from "../../config/features";
 import { useIntl } from "react-intl";
 
@@ -59,11 +59,50 @@ const Login: React.FC<AuthProps> = ({ setIsAuthenticatedLS, setLocale }) => {
   };
 
   return (
-    <Container maxWidth="xs" sx={{ mt: 20 }}>
-      <Paper elevation={4} sx={{ p: 4, textAlign: "center", borderRadius: 2 }}>
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", mb: 2, gap: 1 }}>
-          <BrandLogo size={72} showName={false} href={false} />
-          <Typography variant="h5" fontWeight={700}>
+    <Box
+      sx={{
+        flex: 1,
+        minHeight: "100vh",
+        width: "100%",
+        bgcolor: "background.default",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        position: "relative",
+        px: 2,
+        py: 4,
+      }}
+    >
+      <Box sx={{ position: "absolute", top: 16, right: 16 }}>
+        <ColorModeToggle />
+      </Box>
+
+      <Paper
+        elevation={4}
+        sx={{
+          p: 4,
+          width: "100%",
+          maxWidth: 400,
+          textAlign: "center",
+          borderRadius: 2,
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            mb: 2,
+            gap: 1,
+          }}
+        >
+          <BrandLogo
+            size={72}
+            showName={false}
+            href={false}
+            logoBackground="paper"
+          />
+          <Typography variant="h5" fontWeight={700} color="text.primary">
             {APP_NAME}
           </Typography>
         </Box>
@@ -104,7 +143,7 @@ const Login: React.FC<AuthProps> = ({ setIsAuthenticatedLS, setLocale }) => {
           </Button>
         </form>
       </Paper>
-    </Container>
+    </Box>
   );
 };
 

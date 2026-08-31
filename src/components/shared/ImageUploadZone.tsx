@@ -70,7 +70,9 @@ const ImageUploadZone = ({
         onDragEnter={() => setIsDragging(true)}
         onDragLeave={() => setIsDragging(false)}
         sx={{
-          border: `2px dashed ${isDragging ? "#1976d2" : "gray"}`,
+          border: "2px dashed",
+          borderColor: isDragging ? "primary.main" : "divider",
+          bgcolor: isDragging ? "action.hover" : "background.paper",
           ...(fillHeight ? { flex: 1, minHeight: 200 } : { height: 360 }),
           display: "flex",
           justifyContent: "center",

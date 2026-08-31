@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
@@ -25,6 +26,57 @@ export interface AuthProps {
   setLocale: (locale: string) => void;
 }
 
+interface AppShellProps {
+  isAuthenticatedLS: boolean;
+  setIsAuthenticatedLS: (auth: boolean) => void;
+  setLocale: (locale: string) => void;
+}
+
+function AppShell({
+  isAuthenticatedLS,
+  setIsAuthenticatedLS,
+  setLocale,
+}: AppShellProps) {
+  const { pathname } = useLocation();
+  const showChrome = isAuthenticatedLS && pathname !== "/login";
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      {showChrome && (
+        <Header
+          setIsAuthenticatedLS={setIsAuthenticatedLS}
+          setLocale={setLocale}
+        />
+      )}
+      <div className="flex flex-1">
+        {showChrome && <Nav />}
+        <Routes>
+          <Route
+            path="/login"
+            element={
+              isAuthenticatedLS ? (
+                <Navigate to="/" replace />
+              ) : (
+                <Login
+                  setIsAuthenticatedLS={setIsAuthenticatedLS}
+                  setLocale={setLocale}
+                />
+              )
+            }
+          />
+          <Route
+            path="/*"
+            element={
+              isAuthenticatedLS ? <Main /> : <Navigate to="/login" replace />
+            }
+          />
+        </Routes>
+      </div>
+      {showChrome && <Footer />}
+    </div>
+  );
+}
+
 function App() {
   const [isAuthenticatedLS, setIsAuthenticatedLS] = useLocalStorage(
     "isLoggedIn",
@@ -34,7 +86,6 @@ function App() {
     (localStorage.getItem("locale") as keyof typeof messages) || "en"
   );
 
-  // beforeunload : 사용자가 페이지를 닫거나 새로고침할 때 발생하는 브라우저 이벤트
   useEffect(() => {
     const handleBeforeUnload = () => {
       localStorage.removeItem("locale");
@@ -56,7 +107,7 @@ function App() {
       setIsAuthenticatedLS(!!localStorage.getItem("isLoggedIn"));
     };
 
-    window.addEventListener("storage", checkAuth); // 다른 탭에서도 로그인 상태 유지
+    window.addEventListener("storage", checkAuth);
 
     return () => {
       window.removeEventListener("storage", checkAuth);
@@ -72,35 +123,11 @@ function App() {
         <ColorModeProvider>
           <NavProvider>
             <Router>
-              <div className="flex flex-col min-h-screen">
-                {isAuthenticatedLS && (
-                  <Header
-                    setIsAuthenticatedLS={setIsAuthenticatedLS}
-                    setLocale={setLocale}
-                  />
-                )}
-                <div className="flex flex-1">
-                  {isAuthenticatedLS && <Nav />}
-                  <Routes>
-                    <Route
-                      path="/login"
-                      element={
-                        <Login
-                          setIsAuthenticatedLS={setIsAuthenticatedLS}
-                          setLocale={setLocale}
-                        />
-                      }
-                    />
-                    <Route
-                      path="/*"
-                      element={
-                        isAuthenticatedLS ? <Main /> : <Navigate to="/login" />
-                      }
-                    />
-                  </Routes>
-                </div>
-                {isAuthenticatedLS && <Footer />}
-              </div>
+              <AppShell
+                isAuthenticatedLS={isAuthenticatedLS}
+                setIsAuthenticatedLS={setIsAuthenticatedLS}
+                setLocale={setLocale}
+              />
             </Router>
           </NavProvider>
         </ColorModeProvider>
