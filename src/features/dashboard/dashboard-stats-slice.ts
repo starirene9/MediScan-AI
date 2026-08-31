@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { FEATURES } from "../../config/features";
 import { fetchDashboardStatsApi } from "../../services/apiClient";
 
 export interface DashboardStats {
@@ -44,15 +43,7 @@ const initialState: DashboardStatsState = {
 
 export const fetchDashboardStats = createAsyncThunk(
   "dashboardStats/fetchDashboardStats",
-  async () => {
-    if (FEATURES.USE_MOCK_AI) {
-      return {
-        stats: emptyStats,
-        findingDistribution: initialState.findingDistribution,
-      };
-    }
-    return fetchDashboardStatsApi();
-  }
+  async () => fetchDashboardStatsApi()
 );
 
 export const dashboardStatsSlice = createSlice({

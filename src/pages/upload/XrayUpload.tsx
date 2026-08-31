@@ -20,8 +20,7 @@ import ImageUploadZone from "../../components/shared/ImageUploadZone";
 import ImageViewer from "../../components/shared/ImageViewer";
 import PredictionPanel from "../../components/shared/PredictionPanel";
 import useSpeechToText from "../../hooks/useSpeechToText";
-import { runAnalysis } from "../../services/mockAiService";
-import { FEATURES } from "../../config/features";
+import { runAnalysis } from "../../services/analysisService";
 import { GradCamMeta, Prediction, isNormalPrediction } from "../../types/study";
 
 const XrayUpload = () => {
@@ -131,12 +130,6 @@ const XrayUpload = () => {
           {intl.formatMessage({ id: "upload_xray" })}
         </Typography>
       </Box>
-
-      {FEATURES.USE_MOCK_AI && (
-        <Alert severity="info" sx={{ py: 0.5 }}>
-          {intl.formatMessage({ id: "mock_ai_notice" })}
-        </Alert>
-      )}
 
       {error && (
         <Alert severity="error" onClose={() => setError(null)}>

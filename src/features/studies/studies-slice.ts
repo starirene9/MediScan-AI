@@ -8,7 +8,6 @@ import {
   fetchStudy,
   patchStudy,
 } from "../../services/apiClient";
-import { FEATURES } from "../../config/features";
 
 interface StudiesState {
   studies: { [id: string]: Study };
@@ -32,34 +31,18 @@ function toRecord(list: Study[]): { [id: string]: Study } {
 
 export const fetchStudiesData = createAsyncThunk(
   "studies/fetchStudiesData",
-  async () => {
-    if (FEATURES.USE_MOCK_AI) {
-      await new Promise((resolve) => setTimeout(resolve, 400));
-      return {} as { [id: string]: Study };
-    }
-    const list = await fetchStudies();
-    return toRecord(list);
-  }
+  async () => toRecord(await fetchStudies())
 );
 
 export const fetchStudyById = createAsyncThunk(
   "studies/fetchStudyById",
-  async (id: string) => {
-    if (FEATURES.USE_MOCK_AI) {
-      throw new Error("Study not found");
-    }
-    return fetchStudy(id);
-  }
+  async (id: string) => fetchStudy(id)
 );
 
 export const saveStudyNotes = createAsyncThunk(
   "studies/saveStudyNotes",
-  async ({ id, notes }: { id: string; notes: string }) => {
-    if (FEATURES.USE_MOCK_AI) {
-      return { id, notes } as Partial<Study> & { id: string };
-    }
-    return patchStudy(id, { notes });
-  }
+  async ({ id, notes }: { id: string; notes: string }) =>
+    patchStudy(id, { notes })
 );
 
 export const updateStudyFields = createAsyncThunk(
@@ -75,59 +58,31 @@ export const updateStudyFields = createAsyncThunk(
     age?: number;
     gender?: string;
     modality?: string;
-  }) => {
-    if (FEATURES.USE_MOCK_AI) {
-      return { id, ...payload } as Study;
-    }
-    return patchStudy(id, payload);
-  }
+  }) => patchStudy(id, payload)
 );
 
 export const removeStudy = createAsyncThunk(
   "studies/removeStudy",
   async (id: string) => {
-    if (!FEATURES.USE_MOCK_AI) {
-      await deleteStudy(id);
-    }
+    await deleteStudy(id);
     return id;
   }
 );
 
 export const saveStudyToWorklist = createAsyncThunk(
   "studies/saveStudyToWorklist",
-  async (
-    payload: {
-      patientId?: string | null;
-      patientName: string;
-      age: number;
-      gender: string;
-      modality: string;
-      status: Study["status"];
-      prediction: Study["prediction"];
-      imageUrl: string;
-      gradCamUrl: string | null;
-      notes: string;
-    }
-  ) => {
-    if (FEATURES.USE_MOCK_AI) {
-      const id = `S${Date.now().toString().slice(-6)}`;
-      return {
-        id,
-        patientId: payload.patientId || `P${Date.now().toString().slice(-4)}`,
-        patientName: payload.patientName,
-        age: payload.age,
-        gender: payload.gender,
-        modality: payload.modality,
-        uploadedAt: new Date().toISOString(),
-        status: payload.status,
-        prediction: payload.prediction,
-        imageUrl: payload.imageUrl,
-        gradCamUrl: payload.gradCamUrl,
-        notes: payload.notes,
-      } as Study;
-    }
-    return createStudy(payload);
-  }
+  async (payload: {
+    patientId?: string | null;
+    patientName: string;
+    age: number;
+    gender: string;
+    modality: string;
+    status: Study["status"];
+    prediction: Study["prediction"];
+    imageUrl: string;
+    gradCamUrl: string | null;
+    notes: string;
+  }) => createStudy(payload)
 );
 
 export const studiesSlice = createSlice({

@@ -100,8 +100,6 @@ export const messages: Record<string, Record<string, string>> = {
     view_gradcam: "Grad-CAM",
     view_overlay: "Overlay",
     no_image: "No image available",
-    mock_ai_notice:
-      "UI demo mode — AI results are mocked. Real inference will connect on the FastAPI branch.",
     gradcam_preview: "Grad-CAM Preview",
     gradcam_disclaimer:
       "Highlights regions the model attended to for this prediction — for decision support, not confirmed lesion localization.",
@@ -215,8 +213,6 @@ export const messages: Record<string, Record<string, string>> = {
     view_gradcam: "Grad-CAM",
     view_overlay: "오버레이",
     no_image: "이미지 없음",
-    mock_ai_notice:
-      "UI 데모 모드 — AI 결과는 mock입니다. FastAPI 브랜치에서 실제 추론이 연결됩니다.",
     gradcam_preview: "Grad-CAM 미리보기",
     gradcam_disclaimer:
       "이 예측을 위해 모델이 주목한 영역을 표시합니다 — 판독 참고용이며, 확정된 병변 위치가 아닙니다.",
@@ -328,8 +324,6 @@ export const messages: Record<string, Record<string, string>> = {
     view_gradcam: "Grad-CAM",
     view_overlay: "Superposición",
     no_image: "Sin imagen",
-    mock_ai_notice:
-      "Modo demo UI — los resultados IA son simulados. La inferencia real se conectará en la rama FastAPI.",
     gradcam_preview: "Vista previa Grad-CAM",
     gradcam_disclaimer:
       "Resalta las regiones a las que el modelo atendió para esta predicción — apoyo a la decisión, no localización confirmada de la lesión.",
