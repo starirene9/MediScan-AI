@@ -235,7 +235,7 @@ const StudiesWorklist = () => {
               width: 40,
               height: 4,
               borderRadius: 2,
-              bgcolor: "grey.400",
+              bgcolor: "action.disabled",
               mb: 1,
             }}
           />

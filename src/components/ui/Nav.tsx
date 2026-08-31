@@ -13,7 +13,7 @@ const Nav = () => {
   const location = useLocation();
   const intl = useIntl();
 
-  const navItems = [
+  const items = [
     {
       to: "/",
       icon: <DashboardIcon />,
@@ -38,17 +38,31 @@ const Nav = () => {
 
   return (
     <nav
-      className={`bg-gray-800 text-white fixed left-0 top-20 h-[calc(100vh-5rem)] p-6 flex flex-col space-y-4 transition-all duration-300 z-50 ${
+      className={`text-white fixed left-0 top-20 h-[calc(100vh-5rem)] p-6 flex flex-col space-y-4 transition-all duration-300 z-50 ${
         isOpen ? "w-44" : "w-22"
       }`}
+      style={{ backgroundColor: "var(--color-nav)" }}
     >
-      {navItems.map(({ to, icon, label }) => (
+      {items.map(({ to, icon, label }) => (
         <Tooltip key={to} title={!isOpen ? label : ""} placement="right">
           <Link
             to={to}
-            className={`py-2 px-2 rounded-md flex items-center space-x-2 transition-all duration-200 ${
-              isActive(to) ? "bg-gray-700" : "hover:bg-gray-700"
-            }`}
+            className="py-2 px-2 rounded-md flex items-center space-x-2 transition-all duration-200"
+            style={{
+              backgroundColor: isActive(to)
+                ? "var(--color-nav-hover)"
+                : "transparent",
+            }}
+            onMouseEnter={(e) => {
+              if (!isActive(to)) {
+                e.currentTarget.style.backgroundColor = "var(--color-nav-hover)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive(to)) {
+                e.currentTarget.style.backgroundColor = "transparent";
+              }
+            }}
           >
             {icon}
             {isOpen && <span>{label}</span>}
@@ -56,7 +70,14 @@ const Nav = () => {
         </Tooltip>
       ))}
       <button
-        className="mt-auto mb-4 p-2 rounded-md hover:bg-gray-700 flex items-center justify-center"
+        className="mt-auto mb-4 p-2 rounded-md flex items-center justify-center"
+        style={{ backgroundColor: "transparent" }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = "var(--color-nav-hover)";
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = "transparent";
+        }}
         onClick={() => setIsOpen(!isOpen)}
       >
         {isOpen ? <ChevronLeftIcon /> : <ChevronRightIcon />}

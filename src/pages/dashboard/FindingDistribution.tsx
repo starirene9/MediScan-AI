@@ -6,7 +6,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography, useTheme } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useIntl } from "react-intl";
 import { RootState } from "../../store/store";
@@ -21,46 +21,51 @@ type SliceLabelProps = {
   outerRadius?: number;
   percent?: number;
   name?: string;
+  fill?: string;
 };
 
-const renderSliceLabel = ({
-  cx = 0,
-  cy = 0,
-  midAngle = 0,
-  outerRadius = 0,
-  percent = 0,
-  name = "",
-}: SliceLabelProps) => {
-  if (percent < 0.03) return null;
+const renderSliceLabel =
+  (labelFill: string) =>
+  ({
+    cx = 0,
+    cy = 0,
+    midAngle = 0,
+    outerRadius = 0,
+    percent = 0,
+    name = "",
+  }: SliceLabelProps) => {
+    if (percent < 0.03) return null;
 
-  const radius = outerRadius + 14;
-  const x = cx + radius * Math.cos(-midAngle * RADIAN);
-  const y = cy + radius * Math.sin(-midAngle * RADIAN);
-  const textAnchor = x >= cx ? "start" : "end";
-  const pct = `${(percent * 100).toFixed(0)}%`;
+    const radius = outerRadius + 14;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+    const textAnchor = x >= cx ? "start" : "end";
+    const pct = `${(percent * 100).toFixed(0)}%`;
 
-  return (
-    <text
-      x={x}
-      y={y}
-      textAnchor={textAnchor}
-      dominantBaseline="central"
-      fill="#1e293b"
-      fontSize={12}
-      fontWeight={600}
-    >
-      <tspan x={x} dy="-0.4em">
-        {name}
-      </tspan>
-      <tspan x={x} dy="1.15em">
-        {pct}
-      </tspan>
-    </text>
-  );
-};
+    return (
+      <text
+        x={x}
+        y={y}
+        textAnchor={textAnchor}
+        dominantBaseline="central"
+        fill={labelFill}
+        fontSize={11}
+        fontWeight={600}
+      >
+        <tspan x={x} dy="-0.4em">
+          {name}
+        </tspan>
+        <tspan x={x} dy="1.15em">
+          {pct}
+        </tspan>
+      </text>
+    );
+  };
 
 const FindingDistribution = () => {
   const intl = useIntl();
+  const theme = useTheme();
+  const labelFill = theme.palette.text.secondary;
   const { findingDistribution, error } = useSelector(
     (state: RootState) => state.dashboardStats
   );
@@ -110,14 +115,22 @@ const FindingDistribution = () => {
               innerRadius="30%"
               outerRadius="42%"
               dataKey="count"
-              label={renderSliceLabel}
-              labelLine={{ stroke: "#94a3b8", strokeWidth: 1 }}
+              label={renderSliceLabel(labelFill)}
+              labelLine={{
+                stroke: theme.palette.text.disabled,
+                strokeWidth: 1,
+              }}
             >
               {data.map((entry) => (
                 <Cell key={entry.label} fill={getFindingColor(entry.label)} />
               ))}
             </Pie>
             <Tooltip
+              contentStyle={{
+                backgroundColor: theme.palette.background.paper,
+                borderColor: theme.palette.divider,
+                color: theme.palette.text.primary,
+              }}
               formatter={(value: number, _name, item) => [
                 value,
                 item.payload?.name ?? item.name,
@@ -126,7 +139,12 @@ const FindingDistribution = () => {
             <Legend
               verticalAlign="bottom"
               iconSize={12}
-              wrapperStyle={{ fontSize: 14, lineHeight: "18px", paddingTop: 8 }}
+              wrapperStyle={{
+                fontSize: 12,
+                lineHeight: "16px",
+                paddingTop: 8,
+                color: theme.palette.text.secondary,
+              }}
             />
           </PieChart>
         </ResponsiveContainer>

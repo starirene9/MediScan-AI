@@ -94,7 +94,7 @@ const ImageViewer = ({
             objectFit: "contain",
           }}
         />
-        {showOverlay && (
+        {showOverlay && gradCamUrl && (
           <>
             <Box
               component="img"

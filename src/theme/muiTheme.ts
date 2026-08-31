@@ -1,23 +1,28 @@
 import { createTheme } from "@mui/material/styles";
+import type { ColorMode } from "./colorMode";
+import { darkMuiOverrides } from "./darkPalette";
 import type { AppPalette } from "./palettes";
 
-export const createAppTheme = (palette: AppPalette) =>
-  createTheme({
+export const createAppTheme = (palette: AppPalette, mode: ColorMode = "light") => {
+  const mui = mode === "dark" ? { ...palette.mui, ...darkMuiOverrides } : palette.mui;
+
+  return createTheme({
     palette: {
+      mode,
       primary: {
-        main: palette.mui.primary,
-        dark: palette.mui.primaryDark,
+        main: mui.primary,
+        dark: mui.primaryDark,
       },
       secondary: {
-        main: palette.mui.secondary,
+        main: mui.secondary,
       },
       background: {
-        default: palette.mui.background,
-        paper: palette.mui.paper,
+        default: mui.background,
+        paper: mui.paper,
       },
       text: {
-        primary: palette.mui.textPrimary,
-        secondary: palette.mui.textSecondary,
+        primary: mui.textPrimary,
+        secondary: mui.textSecondary,
       },
       error: {
         main: palette.mui.error,
@@ -25,6 +30,7 @@ export const createAppTheme = (palette: AppPalette) =>
       success: {
         main: palette.mui.success,
       },
+      divider: mode === "dark" ? "#334155" : "#dee2e6",
     },
     typography: {
       h6: {
@@ -34,4 +40,21 @@ export const createAppTheme = (palette: AppPalette) =>
     shape: {
       borderRadius: 8,
     },
+    components: {
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundImage: "none",
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            backgroundImage: "none",
+          },
+        },
+      },
+    },
   });
+};

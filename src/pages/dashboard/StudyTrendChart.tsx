@@ -8,13 +8,16 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { Box, Paper, Typography } from "@mui/material";
+import { Box, Paper, Typography, useTheme } from "@mui/material";
 import { useSelector } from "react-redux";
 import { useIntl } from "react-intl";
 import { RootState } from "../../store/store";
 
 const StudyTrendChart = () => {
   const intl = useIntl();
+  const theme = useTheme();
+  const tickFill = theme.palette.text.secondary;
+  const gridStroke = theme.palette.divider;
   const { trends, error } = useSelector(
     (state: RootState) => state.studyTrends
   );
@@ -46,11 +49,27 @@ const StudyTrendChart = () => {
       <Box sx={{ flex: 1, minHeight: 0, width: "100%" }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={trends} margin={{ top: 5, right: 16, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="formattedDate" tick={{ fontSize: 10 }} />
-            <YAxis width={32} tick={{ fontSize: 10 }} />
-            <Tooltip />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+            <XAxis
+              dataKey="formattedDate"
+              tick={{ fontSize: 10, fill: tickFill }}
+              stroke={gridStroke}
+            />
+            <YAxis
+              width={32}
+              tick={{ fontSize: 10, fill: tickFill }}
+              stroke={gridStroke}
+            />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: theme.palette.background.paper,
+                borderColor: theme.palette.divider,
+                color: theme.palette.text.primary,
+              }}
+            />
+            <Legend
+              wrapperStyle={{ fontSize: 12, color: theme.palette.text.secondary }}
+            />
             <Line
               type="monotone"
               dataKey="totalStudies"

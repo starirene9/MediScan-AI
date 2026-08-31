@@ -32,7 +32,14 @@ const Dashboard = () => {
         overflow: "hidden",
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, flexShrink: 0 }}>
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1.5,
+          flexShrink: 0,
+        }}
+      >
         <Typography variant="h6" sx={{ color: "var(--color-navy)" }}>
           {intl.formatMessage({ id: "dashboard_title" })}
         </Typography>

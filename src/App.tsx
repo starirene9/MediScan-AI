@@ -17,6 +17,7 @@ import Main from "./components/ui/Main";
 import Login from "./pages/login/Login";
 import useLocalStorage from "./hooks/useLocalStorage";
 import { IntlProvider } from "react-intl";
+import { ColorModeProvider } from "./context/ColorModeContext";
 
 export interface AuthProps {
   isAuthenticatedLS?: boolean;
@@ -68,39 +69,41 @@ function App() {
         locale={locale}
         messages={messages[locale] || messages["en"]}
       >
-        <NavProvider>
-          <Router>
-            <div className="flex flex-col min-h-screen">
-              {isAuthenticatedLS && (
-                <Header
-                  setIsAuthenticatedLS={setIsAuthenticatedLS}
-                  setLocale={setLocale}
-                />
-              )}
-              <div className="flex flex-1">
-                {isAuthenticatedLS && <Nav />}
-                <Routes>
-                  <Route
-                    path="/login"
-                    element={
-                      <Login
-                        setIsAuthenticatedLS={setIsAuthenticatedLS}
-                        setLocale={setLocale}
-                      />
-                    }
+        <ColorModeProvider>
+          <NavProvider>
+            <Router>
+              <div className="flex flex-col min-h-screen">
+                {isAuthenticatedLS && (
+                  <Header
+                    setIsAuthenticatedLS={setIsAuthenticatedLS}
+                    setLocale={setLocale}
                   />
-                  <Route
-                    path="/*"
-                    element={
-                      isAuthenticatedLS ? <Main /> : <Navigate to="/login" />
-                    }
-                  />
-                </Routes>
+                )}
+                <div className="flex flex-1">
+                  {isAuthenticatedLS && <Nav />}
+                  <Routes>
+                    <Route
+                      path="/login"
+                      element={
+                        <Login
+                          setIsAuthenticatedLS={setIsAuthenticatedLS}
+                          setLocale={setLocale}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/*"
+                      element={
+                        isAuthenticatedLS ? <Main /> : <Navigate to="/login" />
+                      }
+                    />
+                  </Routes>
+                </div>
+                {isAuthenticatedLS && <Footer />}
               </div>
-              {isAuthenticatedLS && <Footer />}
-            </div>
-          </Router>
-        </NavProvider>
+            </Router>
+          </NavProvider>
+        </ColorModeProvider>
       </IntlProvider>
     </Provider>
   );

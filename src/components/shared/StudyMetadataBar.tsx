@@ -19,10 +19,10 @@ const StudyMetadataBar = ({ study }: StudyMetadataBarProps) => {
         alignItems: "center",
         gap: 1,
         p: 1.5,
-        bgcolor: "grey.50",
+        bgcolor: "action.hover",
         borderRadius: 1,
         border: "1px solid",
-        borderColor: "grey.200",
+        borderColor: "divider",
       }}
     >
       <Typography variant="body2" fontWeight={600}>

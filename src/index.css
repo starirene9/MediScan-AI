@@ -30,6 +30,15 @@
   --color-steel-blue: #4682b4; /* 스틸 블루 */
   --color-midnight-blue: #191970; /* 미드나잇 블루 */
   --color-indigo: #4b0082; /* 인디고 */
+
+  /* Layout / chrome (overridden by applyTheme for dark mode) */
+  --color-shell: #1e40af;
+  --color-nav: #1f2937;
+  --color-nav-hover: #374151;
+  --color-footer: #111827;
+  --color-surface: #f3f4f6;
+  --color-border: #dee2e6;
+  --color-muted: #6c757d;
 }
 
 html {

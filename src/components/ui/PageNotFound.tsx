@@ -14,10 +14,15 @@ const PageNotFound = () => {
   }, [navigate]);
 
   return (
-    <div className="flex flex-col items-center text-center bg-gray-100 p-20">
+    <div
+      className="flex flex-col items-center text-center p-20"
+      style={{ backgroundColor: "var(--color-surface)" }}
+    >
       <img src={PageNotFoundImg} alt="Page Not Found" className="w-120 h-120" />
       <h1 className="text-3xl font-bold mt-10">404 - Page Not Found</h1>
-      <p className="text-gray-500 mt-2">Redirecting to the dashboard...</p>
+      <p className="mt-2" style={{ color: "var(--color-muted)" }}>
+        Redirecting to the dashboard...
+      </p>
     </div>
   );
 };

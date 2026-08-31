@@ -13,9 +13,10 @@ const Main = () => {
 
   return (
     <main
-      className={`transition-all duration-300 mt-20 p-3 flex-1 bg-gray-100 h-[calc(100vh-128px)] ${
+      className={`transition-all duration-300 mt-20 p-3 flex-1 h-[calc(100vh-128px)] ${
         isFullHeightPage ? "overflow-hidden" : "overflow-y-auto"
       } ${isOpen ? "ml-44" : "ml-22"}`}
+      style={{ backgroundColor: "var(--color-surface)" }}
     >
       <div className={isFullHeightPage ? "h-full min-h-0" : undefined}>
         <Routes>
