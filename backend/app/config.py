@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./mediscan.db"
     cors_origins: str = "http://localhost:5173"
     upload_dir: str = str(BACKEND_ROOT / "uploads")
+    serve_frontend: bool = False
+    static_dir: str = str(BACKEND_ROOT / "static")
 
     # TorchXRayVision multi-label (NIH-aligned)
     inference_model_name: str = "densenet121-res224-all"

@@ -1,0 +1,19 @@
+services:
+  mediscan:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      SERVE_FRONTEND: "true"
+      DATABASE_URL: sqlite:////app/backend/data/mediscan.db
+      UPLOAD_DIR: /app/backend/uploads
+      CORS_ORIGINS: "*"
+    volumes:
+      - mediscan-data:/app/backend/data
+      - mediscan-uploads:/app/backend/uploads
+
+volumes:
+  mediscan-data:
+  mediscan-uploads:

@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: mediscan-ai
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    plan: free

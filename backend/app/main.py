@@ -9,6 +9,7 @@ from app.config import settings
 from app.db.database import Base, SessionLocal, engine
 from app.db.migrate import ensure_schema
 from app.db.seed import seed_studies
+from app.frontend import register_frontend
 from app.models import entities  # noqa: F401  — register SQLAlchemy models
 from app.services.storage_service import ensure_upload_dir
 
@@ -41,3 +42,4 @@ app.include_router(studies.router)
 app.include_router(dashboard.router)
 app.include_router(inference.router)
 app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads")
+register_frontend(app)
