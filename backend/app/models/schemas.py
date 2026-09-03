@@ -111,7 +111,9 @@ class StudyTrendPoint(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     app: str
-    modelReady: bool = False
+    # No default: FastAPI's response-model serialization may exclude default-valued
+    # fields (e.g. `false`). Make this required so `false` is still returned.
+    modelReady: bool
 
 
 class InferenceSettingsResponse(BaseModel):
