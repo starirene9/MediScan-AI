@@ -29,6 +29,15 @@ _model = None
 _model_lock = Lock()
 
 
+def is_model_ready() -> bool:
+    return _model is not None
+
+
+def warmup_model() -> None:
+    """Load TorchXRayVision weights so the first /analyze request is faster."""
+    get_model()
+
+
 def get_model():
     global _model
     if _model is not None:

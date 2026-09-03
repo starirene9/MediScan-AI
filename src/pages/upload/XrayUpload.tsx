@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -21,6 +21,8 @@ import ImageViewer from "../../components/shared/ImageViewer";
 import PredictionPanel from "../../components/shared/PredictionPanel";
 import useSpeechToText from "../../hooks/useSpeechToText";
 import { runAnalysis } from "../../services/analysisService";
+import { AnalysisRequestError, fetchHealth } from "../../services/apiClient";
+import { useAnalysisProgress } from "../../hooks/useAnalysisProgress";
 import { GradCamMeta, Prediction, isNormalPrediction } from "../../types/study";
 
 const XrayUpload = () => {
@@ -40,6 +42,11 @@ const XrayUpload = () => {
   const [gradCamUrl, setGradCamUrl] = useState<string | null>(null);
   const [gradCamMeta, setGradCamMeta] = useState<GradCamMeta | null>(null);
   const [listening, setListening] = useState(false);
+  const [modelReady, setModelReady] = useState(true);
+  const { elapsedSeconds, phaseMessageId, showFirstRunHint } = useAnalysisProgress(
+    analyzing,
+    modelReady
+  );
   const { startListening, stopListening } = useSpeechToText((text) =>
     setNotes((prev) => prev + text)
   );
@@ -48,6 +55,31 @@ const XrayUpload = () => {
   const hasImage = Boolean(previewUrl || file);
   const hasPatientName = patientName.trim().length > 0;
   const canAnalyze = hasImage && !analyzing;
+
+  useEffect(() => {
+    let cancelled = false;
+    let timer: number | undefined;
+
+    const pollHealth = async () => {
+      try {
+        const health = await fetchHealth();
+        if (cancelled) return;
+        setModelReady(health.modelReady);
+        if (!health.modelReady) {
+          timer = window.setTimeout(pollHealth, 5000);
+        }
+      } catch {
+        if (!cancelled) setModelReady(true);
+      }
+    };
+
+    void pollHealth();
+
+    return () => {
+      cancelled = true;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, []);
 
   const handleAnalyze = async () => {
     if (!hasImage || !previewUrl) {
@@ -76,7 +108,19 @@ const XrayUpload = () => {
       setGradCamMeta(result.gradCamMeta);
       setServerImageUrl(result.imageUrl);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Analysis failed");
+      if (err instanceof AnalysisRequestError) {
+        setError(
+          intl.formatMessage({
+            id: err.code === "timeout" ? "analyze_timeout" : "analyze_failed",
+          })
+        );
+      } else {
+        setError(
+          err instanceof Error
+            ? err.message
+            : intl.formatMessage({ id: "analyze_failed" })
+        );
+      }
     } finally {
       setAnalyzing(false);
     }
@@ -134,6 +178,12 @@ const XrayUpload = () => {
       {error && (
         <Alert severity="error" onClose={() => setError(null)}>
           {error}
+        </Alert>
+      )}
+
+      {!modelReady && !analyzing && (
+        <Alert severity="info">
+          {intl.formatMessage({ id: "analyze_warming_hint" })}
         </Alert>
       )}
 
@@ -216,7 +266,15 @@ const XrayUpload = () => {
               {intl.formatMessage({ id: "ai_prediction" })}
             </Typography>
             <Box sx={{ flex: 1, minHeight: 0, overflow: "auto" }}>
-              <PredictionPanel prediction={prediction} loading={analyzing} />
+              <PredictionPanel
+                prediction={prediction}
+                loading={analyzing}
+                loadingMessageId={phaseMessageId}
+                loadingHintId={
+                  showFirstRunHint ? "analyze_first_run_hint" : undefined
+                }
+                elapsedSeconds={elapsedSeconds}
+              />
             </Box>
           </Paper>
         </Box>

@@ -6,6 +6,9 @@ import ConfidenceChip from "./ConfidenceChip";
 interface PredictionPanelProps {
   prediction: Prediction | null;
   loading?: boolean;
+  loadingMessageId?: string;
+  loadingHintId?: string;
+  elapsedSeconds?: number;
 }
 
 const findingLabelId = (name: string) =>
@@ -56,11 +59,40 @@ const FindingRow = ({ finding }: { finding: PathologyFinding }) => {
   );
 };
 
-const PredictionPanel = ({ prediction, loading }: PredictionPanelProps) => {
+const PredictionPanel = ({
+  prediction,
+  loading,
+  loadingMessageId = "analyzing",
+  loadingHintId,
+  elapsedSeconds = 0,
+}: PredictionPanelProps) => {
   const intl = useIntl();
 
   if (loading) {
-    return <LinearProgress />;
+    return (
+      <Stack spacing={1.5}>
+        <LinearProgress />
+        <Typography variant="body2" fontWeight={600} color="text.primary">
+          {intl.formatMessage({ id: loadingMessageId })}
+        </Typography>
+        {loadingHintId ? (
+          <Typography variant="body2" color="text.secondary">
+            {intl.formatMessage({ id: loadingHintId })}
+          </Typography>
+        ) : null}
+        <Typography variant="caption" color="text.secondary">
+          {intl.formatMessage({ id: "analyze_keep_page_open" })}
+        </Typography>
+        {elapsedSeconds > 0 ? (
+          <Typography variant="caption" color="text.secondary">
+            {intl.formatMessage(
+              { id: "analyze_elapsed" },
+              { seconds: elapsedSeconds }
+            )}
+          </Typography>
+        ) : null}
+      </Stack>
+    );
   }
 
   if (!prediction) {

@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     upload_dir: str = str(BACKEND_ROOT / "uploads")
     serve_frontend: bool = False
     static_dir: str = str(BACKEND_ROOT / "static")
+    warmup_model_on_startup: bool = False
 
     # TorchXRayVision multi-label (NIH-aligned)
     inference_model_name: str = "densenet121-res224-all"

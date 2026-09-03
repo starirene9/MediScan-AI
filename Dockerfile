@@ -43,7 +43,8 @@ ENV SERVE_FRONTEND=true \
     STATIC_DIR=/app/backend/static \
     DATABASE_URL=sqlite:////app/backend/data/mediscan.db \
     UPLOAD_DIR=/app/backend/uploads \
-    CORS_ORIGINS=*
+    CORS_ORIGINS=* \
+    WARMUP_MODEL_ON_STARTUP=true
 
 EXPOSE 8000
 

@@ -111,6 +111,7 @@ class StudyTrendPoint(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     app: str
+    modelReady: bool = False
 
 
 class InferenceSettingsResponse(BaseModel):

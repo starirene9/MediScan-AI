@@ -1,6 +1,24 @@
 import { Study } from "../types/study";
 import type { GradCamMeta } from "../types/study";
 
+const ANALYZE_TIMEOUT_MS = 4 * 60 * 1000;
+
+export class AnalysisRequestError extends Error {
+  readonly code: "timeout" | "network";
+
+  constructor(code: "timeout" | "network", message?: string) {
+    super(message ?? code);
+    this.name = "AnalysisRequestError";
+    this.code = code;
+  }
+}
+
+export interface HealthPayload {
+  status: string;
+  app: string;
+  modelReady: boolean;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, init);
   if (!response.ok) {
@@ -19,6 +37,33 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     return undefined as T;
   }
   return response.json() as Promise<T>;
+}
+
+async function requestWithTimeout<T>(
+  path: string,
+  init: RequestInit,
+  timeoutMs: number
+): Promise<T> {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await request<T>(path, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new AnalysisRequestError("timeout");
+    }
+    if (error instanceof TypeError) {
+      throw new AnalysisRequestError("network", error.message);
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
+export async function fetchHealth(): Promise<HealthPayload> {
+  return request<HealthPayload>("/api/health");
 }
 
 function normalizeStudy(raw: Study): Study {
@@ -116,10 +161,14 @@ export async function analyzeXray(params: {
   form.append("notes", params.notes || "");
   form.append("saveToWorklist", params.saveToWorklist ? "true" : "false");
 
-  const result = await request<AnalyzeApiResponse>("/api/studies/analyze", {
-    method: "POST",
-    body: form,
-  });
+  const result = await requestWithTimeout<AnalyzeApiResponse>(
+    "/api/studies/analyze",
+    {
+      method: "POST",
+      body: form,
+    },
+    ANALYZE_TIMEOUT_MS
+  );
 
   return {
     ...result,

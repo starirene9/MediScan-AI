@@ -95,6 +95,20 @@ export const messages: Record<string, Record<string, string>> = {
     upload_hint: "Drag & drop or click to upload",
     run_ai_analysis: "Run AI Analysis",
     analyzing: "Analyzing...",
+    analyze_first_run_hint:
+      "The first analysis after server start may take 1–3 minutes while the AI model loads. Please keep this page open.",
+    analyze_warming_hint:
+      "The AI model is still loading in the background. Your first analysis may take longer than usual.",
+    analyze_keep_page_open: "Please keep this page open until analysis completes.",
+    analyze_phase_preparing: "Loading AI model…",
+    analyze_phase_inference: "Analyzing chest X-ray…",
+    analyze_phase_gradcam: "Generating Grad-CAM heatmap…",
+    analyze_phase_long_running:
+      "Still working — first run or cold start can take several minutes on the demo server.",
+    analyze_elapsed: "Elapsed: {seconds}s",
+    analyze_timeout:
+      "Analysis timed out. The server may still be loading the AI model — wait a minute and try again.",
+    analyze_failed: "Analysis failed. Please try again.",
     save_to_worklist: "Save to Worklist",
     view_original: "Original",
     view_gradcam: "Grad-CAM",
@@ -208,6 +222,20 @@ export const messages: Record<string, Record<string, string>> = {
     upload_hint: "드래그 앤 드롭 또는 클릭하여 업로드",
     run_ai_analysis: "AI 분석 실행",
     analyzing: "분석 중...",
+    analyze_first_run_hint:
+      "서버 시작 후 첫 분석은 AI 모델을 불러오느라 1–3분 걸릴 수 있습니다. 이 페이지를 닫지 마세요.",
+    analyze_warming_hint:
+      "AI 모델을 백그라운드에서 불러오는 중입니다. 첫 분석은 평소보다 오래 걸릴 수 있습니다.",
+    analyze_keep_page_open: "분석이 끝날 때까지 이 페이지를 유지해 주세요.",
+    analyze_phase_preparing: "AI 모델 불러오는 중…",
+    analyze_phase_inference: "흉부 X-ray 분석 중…",
+    analyze_phase_gradcam: "Grad-CAM 히트맵 생성 중…",
+    analyze_phase_long_running:
+      "아직 처리 중입니다. 데모 서버의 첫 실행·콜드 스타트는 몇 분 걸릴 수 있습니다.",
+    analyze_elapsed: "경과: {seconds}초",
+    analyze_timeout:
+      "분석 시간이 초과되었습니다. 서버가 아직 AI 모델을 불러오는 중일 수 있습니다. 잠시 후 다시 시도해 주세요.",
+    analyze_failed: "분석에 실패했습니다. 다시 시도해 주세요.",
     save_to_worklist: "워크리스트에 저장",
     view_original: "원본",
     view_gradcam: "Grad-CAM",
@@ -319,6 +347,20 @@ export const messages: Record<string, Record<string, string>> = {
     upload_hint: "Arrastre y suelte o haga clic para subir",
     run_ai_analysis: "Ejecutar análisis IA",
     analyzing: "Analizando...",
+    analyze_first_run_hint:
+      "El primer análisis tras iniciar el servidor puede tardar 1–3 minutos mientras se carga el modelo IA. Mantenga esta página abierta.",
+    analyze_warming_hint:
+      "El modelo IA aún se está cargando en segundo plano. El primer análisis puede tardar más de lo habitual.",
+    analyze_keep_page_open: "Mantenga esta página abierta hasta que termine el análisis.",
+    analyze_phase_preparing: "Cargando modelo IA…",
+    analyze_phase_inference: "Analizando radiografía de tórax…",
+    analyze_phase_gradcam: "Generando mapa de calor Grad-CAM…",
+    analyze_phase_long_running:
+      "Sigue en curso — la primera ejecución o un arranque en frío en el servidor demo puede tardar varios minutos.",
+    analyze_elapsed: "Transcurrido: {seconds}s",
+    analyze_timeout:
+      "Tiempo de análisis agotado. El servidor puede seguir cargando el modelo IA — espere un minuto e inténtelo de nuevo.",
+    analyze_failed: "Error en el análisis. Inténtelo de nuevo.",
     save_to_worklist: "Guardar en lista",
     view_original: "Original",
     view_gradcam: "Grad-CAM",

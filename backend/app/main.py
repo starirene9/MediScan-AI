@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -11,6 +12,7 @@ from app.db.migrate import ensure_schema
 from app.db.seed import seed_studies
 from app.frontend import register_frontend
 from app.models import entities  # noqa: F401  — register SQLAlchemy models
+from app.services import inference_service
 from app.services.storage_service import ensure_upload_dir
 
 
@@ -24,6 +26,8 @@ async def lifespan(_app: FastAPI):
         seed_studies(db)
     finally:
         db.close()
+    if settings.warmup_model_on_startup:
+        asyncio.create_task(asyncio.to_thread(inference_service.warmup_model))
     yield
 
 
