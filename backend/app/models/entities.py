@@ -25,8 +25,3 @@ class StudyEntity(Base):
     image_url: Mapped[str] = mapped_column(String(255))
     grad_cam_url: Mapped[str | None] = mapped_column(String(255), nullable=True)
     notes: Mapped[str] = mapped_column(Text, default="")
-    # Clinical review (human-in-the-loop). AI prediction fields stay unchanged.
-    review_decision: Mapped[str | None] = mapped_column(String(32), nullable=True)
-    final_label: Mapped[str | None] = mapped_column(String(64), nullable=True)
-    review_note: Mapped[str | None] = mapped_column(Text, nullable=True)
-    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)

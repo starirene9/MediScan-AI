@@ -1,6 +1,6 @@
 import { Box, Chip, Stack, Typography } from "@mui/material";
 import { useIntl } from "react-intl";
-import { Study, effectiveFindingLabel } from "../../types/study";
+import { Study } from "../../types/study";
 import { getStudyStatusColor } from "../../utils";
 import ConfidenceChip from "./ConfidenceChip";
 
@@ -10,8 +10,6 @@ interface StudyMetadataBarProps {
 
 const StudyMetadataBar = ({ study }: StudyMetadataBarProps) => {
   const intl = useIntl();
-  const finalLabel = effectiveFindingLabel(study);
-  const review = study.review;
 
   return (
     <Box
@@ -33,7 +31,7 @@ const StudyMetadataBar = ({ study }: StudyMetadataBarProps) => {
       <Typography variant="body2" color="text.secondary">
         · {study.modality}
       </Typography>
-      <Stack direction="row" spacing={1} sx={{ ml: { sm: "auto" }, flexWrap: "wrap" }}>
+      <Stack direction="row" spacing={1} sx={{ ml: { sm: "auto" } }}>
         <Chip size="small" label={study.id} variant="outlined" />
         <Chip
           size="small"
@@ -50,27 +48,6 @@ const StudyMetadataBar = ({ study }: StudyMetadataBarProps) => {
           label={study.prediction.label}
           confidence={study.prediction.confidence}
         />
-        {review ? (
-          <Chip
-            size="small"
-            color={review.decision === "overridden" ? "warning" : "success"}
-            label={
-              review.decision === "overridden"
-                ? intl.formatMessage(
-                    { id: "review_badge_overridden" },
-                    { label: finalLabel }
-                  )
-                : intl.formatMessage({ id: "review_badge_accepted" })
-            }
-          />
-        ) : (
-          <Chip
-            size="small"
-            color="info"
-            variant="outlined"
-            label={intl.formatMessage({ id: "review_badge_pending" })}
-          />
-        )}
       </Stack>
     </Box>
   );

@@ -19,12 +19,10 @@ import { AppDispatch, RootState } from "../../store/store";
 import {
   fetchStudiesData,
   selectStudy,
-  submitClinicalReview,
   updateStudy,
 } from "../../features/studies/studies-slice";
 import ImageViewer from "../../components/shared/ImageViewer";
 import PredictionPanel from "../../components/shared/PredictionPanel";
-import ClinicalReviewPanel from "../../components/shared/ClinicalReviewPanel";
 import StudyMetadataBar from "../../components/shared/StudyMetadataBar";
 import useSpeechToText from "../../hooks/useSpeechToText";
 
@@ -33,7 +31,7 @@ const StudyDetail = () => {
   const navigate = useNavigate();
   const intl = useIntl();
   const dispatch = useDispatch<AppDispatch>();
-  const { studies, loading, mutating } = useSelector((state: RootState) => state.studies);
+  const { studies, loading } = useSelector((state: RootState) => state.studies);
   const study = id ? studies[id] : null;
   const [notes, setNotes] = useState("");
   const [listening, setListening] = useState(false);
@@ -57,22 +55,6 @@ const StudyDetail = () => {
     if (study) {
       dispatch(updateStudy({ id: study.id, notes }));
     }
-  };
-
-  const handleReview = async (payload: {
-    decision: "accepted" | "overridden";
-    finalLabel?: string;
-    note?: string;
-  }) => {
-    if (!study) return;
-    await dispatch(
-      submitClinicalReview({
-        id: study.id,
-        decision: payload.decision,
-        finalLabel: payload.finalLabel,
-        note: payload.note,
-      })
-    ).unwrap();
   };
 
   const toggleMic = () => {
@@ -141,19 +123,9 @@ const StudyDetail = () => {
             </Typography>
             <PredictionPanel
               prediction={study?.prediction ?? null}
-              loading={loading && !study}
+              loading={loading}
             />
           </Paper>
-
-          {study && (
-            <Paper sx={{ p: 2 }}>
-              <ClinicalReviewPanel
-                study={study}
-                submitting={mutating}
-                onSubmit={handleReview}
-              />
-            </Paper>
-          )}
 
           <Paper sx={{ p: 2, flex: 1, position: "relative" }}>
             <Typography variant="subtitle1" sx={{ mb: 1, color: "var(--color-navy)" }}>

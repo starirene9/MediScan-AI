@@ -4,19 +4,8 @@ from datetime import datetime
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.ml.pathologies import NIH14_PATHOLOGIES, NO_FINDING_LABEL
 from app.models.entities import StudyEntity
-from app.models.schemas import (
-    ClinicalReview,
-    PathologyFinding,
-    Prediction,
-    Study,
-    StudyCreate,
-    StudyReviewRequest,
-    StudyUpdate,
-)
-
-ALLOWED_FINAL_LABELS = {NO_FINDING_LABEL, *NIH14_PATHOLOGIES}
+from app.models.schemas import PathologyFinding, Prediction, Study, StudyCreate, StudyUpdate
 
 
 def _parse_findings(raw: str | None) -> list[PathologyFinding]:
@@ -29,20 +18,6 @@ def _parse_findings(raw: str | None) -> list[PathologyFinding]:
     if not isinstance(data, list):
         return []
     return [PathologyFinding.model_validate(item) for item in data]
-
-
-def _to_review(entity: StudyEntity) -> ClinicalReview | None:
-    decision = getattr(entity, "review_decision", None)
-    final_label = getattr(entity, "final_label", None)
-    reviewed_at = getattr(entity, "reviewed_at", None)
-    if not decision or not final_label or reviewed_at is None:
-        return None
-    return ClinicalReview(
-        decision=decision,  # type: ignore[arg-type]
-        finalLabel=final_label,
-        note=getattr(entity, "review_note", None) or "",
-        reviewedAt=reviewed_at,
-    )
 
 
 def _to_schema(entity: StudyEntity) -> Study:
@@ -64,7 +39,6 @@ def _to_schema(entity: StudyEntity) -> Study:
         imageUrl=entity.image_url,
         gradCamUrl=entity.grad_cam_url,
         notes=entity.notes,
-        review=_to_review(entity),
     )
 
 
@@ -101,10 +75,6 @@ def create_study(db: Session, payload: StudyCreate) -> Study:
         image_url=payload.imageUrl,
         grad_cam_url=payload.gradCamUrl,
         notes=payload.notes,
-        review_decision=None,
-        final_label=None,
-        review_note=None,
-        reviewed_at=None,
     )
     db.add(entity)
     db.commit()
@@ -129,42 +99,6 @@ def update_study(db: Session, study_id: str, payload: StudyUpdate) -> Study:
         entity.gender = payload.gender
     if payload.modality is not None:
         entity.modality = payload.modality
-
-    db.commit()
-    db.refresh(entity)
-    return _to_schema(entity)
-
-
-def review_study(db: Session, study_id: str, payload: StudyReviewRequest) -> Study:
-    entity = db.get(StudyEntity, study_id)
-    if entity is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Study not found")
-
-    if payload.decision == "accepted":
-        final_label = entity.prediction_label
-    else:
-        if not payload.finalLabel:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="finalLabel is required when overriding.",
-            )
-        if payload.finalLabel not in ALLOWED_FINAL_LABELS:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"finalLabel must be one of: {', '.join(sorted(ALLOWED_FINAL_LABELS))}",
-            )
-        final_label = payload.finalLabel
-        if final_label == entity.prediction_label:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Override label must differ from the AI prediction label.",
-            )
-
-    entity.review_decision = payload.decision
-    entity.final_label = final_label
-    entity.review_note = payload.note.strip()
-    entity.reviewed_at = datetime.now()
-    entity.status = "Reviewed"
 
     db.commit()
     db.refresh(entity)

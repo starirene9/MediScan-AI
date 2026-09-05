@@ -73,17 +73,6 @@ function normalizeStudy(raw: Study): Study {
       typeof raw.uploadedAt === "string"
         ? raw.uploadedAt
         : new Date(raw.uploadedAt as unknown as string).toISOString(),
-    review: raw.review
-      ? {
-          ...raw.review,
-          reviewedAt:
-            typeof raw.review.reviewedAt === "string"
-              ? raw.review.reviewedAt
-              : new Date(
-                  raw.review.reviewedAt as unknown as string
-                ).toISOString(),
-        }
-      : raw.review ?? null,
   };
 }
 
@@ -152,23 +141,6 @@ export async function deleteStudy(id: string): Promise<void> {
   await request<void>(`/api/studies/${id}`, { method: "DELETE" });
 }
 
-export async function submitStudyReview(
-  id: string,
-  payload: {
-    decision: "accepted" | "overridden";
-    finalLabel?: string;
-    note?: string;
-  }
-): Promise<Study> {
-  return normalizeStudy(
-    await request<Study>(`/api/studies/${id}/review`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-  );
-}
-
 export interface AnalyzeApiResponse {
   prediction: Study["prediction"];
   imageUrl: string;
@@ -210,8 +182,6 @@ export interface DashboardStatsPayload {
     pendingReview: number;
     abnormalCount: number;
     avgConfidence: number;
-    overrideRate: number;
-    reviewedCount: number;
     timestamp: string;
   };
   findingDistribution: { label: string; count: number }[];
