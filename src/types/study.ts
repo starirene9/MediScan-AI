@@ -1,5 +1,7 @@
 export type StudyStatus = "Pending" | "Reviewed" | "Abnormal" | "Normal";
 
+export type ReviewDecision = "accepted" | "overridden";
+
 /** Summary label: NIH pathology name or "Normal". */
 export type FindingLabel = string;
 
@@ -14,6 +16,13 @@ export interface Prediction {
   confidence: number;
   findings?: PathologyFinding[];
   classificationMode?: "nih14" | "grouped" | string;
+}
+
+export interface ClinicalReview {
+  decision: ReviewDecision;
+  finalLabel: FindingLabel;
+  note: string;
+  reviewedAt: string;
 }
 
 export interface GradCamMeta {
@@ -36,8 +45,32 @@ export interface Study {
   imageUrl: string;
   gradCamUrl: string | null;
   notes: string;
+  review?: ClinicalReview | null;
 }
+
+export const NIH14_LABELS = [
+  "Atelectasis",
+  "Cardiomegaly",
+  "Effusion",
+  "Infiltration",
+  "Mass",
+  "Nodule",
+  "Pneumonia",
+  "Pneumothorax",
+  "Consolidation",
+  "Edema",
+  "Emphysema",
+  "Fibrosis",
+  "Pleural_Thickening",
+  "Hernia",
+] as const;
+
+export const FINAL_LABEL_OPTIONS = ["Normal", ...NIH14_LABELS] as const;
 
 export function isNormalPrediction(label: string): boolean {
   return label === "Normal" || label === "No Finding";
+}
+
+export function effectiveFindingLabel(study: Study): string {
+  return study.review?.finalLabel ?? study.prediction.label;
 }

@@ -15,12 +15,15 @@ SEED_SPECS = [
         "days_ago": 2,
         "hour": 9,
         "minute": 30,
-        "status": "Abnormal",
+        "status": "Pending",
         "prediction_label": "Nodule",
         "prediction_confidence": 0.87,
         "image_url": "/placeholder-xray.svg",
         "grad_cam_url": "/placeholder-xray.svg",
         "notes": "",
+        "review_decision": None,
+        "final_label": None,
+        "review_note": None,
     },
     {
         "id": "S002",
@@ -31,12 +34,15 @@ SEED_SPECS = [
         "days_ago": 2,
         "hour": 11,
         "minute": 15,
-        "status": "Abnormal",
+        "status": "Pending",
         "prediction_label": "Pneumonia",
         "prediction_confidence": 0.92,
         "image_url": "/placeholder-xray.svg",
         "grad_cam_url": "/placeholder-xray.svg",
         "notes": "Follow-up recommended in 2 weeks.",
+        "review_decision": None,
+        "final_label": None,
+        "review_note": None,
     },
     {
         "id": "S003",
@@ -47,12 +53,15 @@ SEED_SPECS = [
         "days_ago": 1,
         "hour": 8,
         "minute": 0,
-        "status": "Normal",
+        "status": "Reviewed",
         "prediction_label": "Normal",
         "prediction_confidence": 0.95,
         "image_url": "/placeholder-xray.svg",
         "grad_cam_url": None,
         "notes": "",
+        "review_decision": "accepted",
+        "final_label": "Normal",
+        "review_note": "Agrees with AI screening.",
     },
     {
         "id": "S004",
@@ -69,6 +78,9 @@ SEED_SPECS = [
         "image_url": "/placeholder-xray.svg",
         "grad_cam_url": None,
         "notes": "",
+        "review_decision": None,
+        "final_label": None,
+        "review_note": None,
     },
     {
         "id": "S005",
@@ -85,6 +97,9 @@ SEED_SPECS = [
         "image_url": "/placeholder-xray.svg",
         "grad_cam_url": "/placeholder-xray.svg",
         "notes": "Biopsy scheduled.",
+        "review_decision": "overridden",
+        "final_label": "Mass",
+        "review_note": "Morphology favors mass over nodule; biopsy scheduled.",
     },
     {
         "id": "S006",
@@ -101,6 +116,9 @@ SEED_SPECS = [
         "image_url": "/placeholder-xray.svg",
         "grad_cam_url": None,
         "notes": "",
+        "review_decision": None,
+        "final_label": None,
+        "review_note": None,
     },
 ]
 
@@ -114,30 +132,42 @@ def _uploaded_at(days_ago: int, hour: int, minute: int) -> datetime:
 
 
 def build_seed_studies() -> list[StudyEntity]:
-    return [
-        StudyEntity(
-            id=spec["id"],
-            patient_id=spec["patient_id"],
-            patient_name=spec["patient_name"],
-            age=spec["age"],
-            gender=spec["gender"],
-            modality="Chest X-ray",
-            uploaded_at=_uploaded_at(spec["days_ago"], spec["hour"], spec["minute"]),
-            status=spec["status"],
-            prediction_label=spec["prediction_label"],
-            prediction_confidence=spec["prediction_confidence"],
-            prediction_findings="[]",
-            prediction_mode="nih14",
-            image_url=spec["image_url"],
-            grad_cam_url=spec["grad_cam_url"],
-            notes=spec["notes"],
+    studies: list[StudyEntity] = []
+    for spec in SEED_SPECS:
+        reviewed_at = (
+            _uploaded_at(spec["days_ago"], spec["hour"], spec["minute"])
+            + timedelta(hours=1)
+            if spec["review_decision"]
+            else None
         )
-        for spec in SEED_SPECS
-    ]
+        studies.append(
+            StudyEntity(
+                id=spec["id"],
+                patient_id=spec["patient_id"],
+                patient_name=spec["patient_name"],
+                age=spec["age"],
+                gender=spec["gender"],
+                modality="Chest X-ray",
+                uploaded_at=_uploaded_at(spec["days_ago"], spec["hour"], spec["minute"]),
+                status=spec["status"],
+                prediction_label=spec["prediction_label"],
+                prediction_confidence=spec["prediction_confidence"],
+                prediction_findings="[]",
+                prediction_mode="nih14",
+                image_url=spec["image_url"],
+                grad_cam_url=spec["grad_cam_url"],
+                notes=spec["notes"],
+                review_decision=spec["review_decision"],
+                final_label=spec["final_label"],
+                review_note=spec["review_note"],
+                reviewed_at=reviewed_at,
+            )
+        )
+    return studies
 
 
 def refresh_seed_upload_dates(db: Session) -> None:
-    """Keep seed rows on a rolling timeline and sync NIH-style labels."""
+    """Keep seed rows on a rolling timeline and sync NIH-style labels + reviews."""
     for spec in SEED_SPECS:
         entity = db.get(StudyEntity, spec["id"])
         if entity is None:
@@ -146,6 +176,13 @@ def refresh_seed_upload_dates(db: Session) -> None:
         entity.prediction_label = spec["prediction_label"]
         entity.prediction_confidence = spec["prediction_confidence"]
         entity.prediction_mode = "nih14"
+        entity.status = spec["status"]
+        entity.review_decision = spec["review_decision"]
+        entity.final_label = spec["final_label"]
+        entity.review_note = spec["review_note"]
+        entity.reviewed_at = (
+            entity.uploaded_at + timedelta(hours=1) if spec["review_decision"] else None
+        )
         if not getattr(entity, "prediction_findings", None):
             entity.prediction_findings = "[]"
     db.commit()

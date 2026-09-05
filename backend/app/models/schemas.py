@@ -4,6 +4,7 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 StudyStatus = Literal["Pending", "Reviewed", "Abnormal", "Normal"]
+ReviewDecision = Literal["accepted", "overridden"]
 
 # Summary label is free-form: NIH pathology name or "Normal".
 FindingLabel = str
@@ -24,6 +25,15 @@ class Prediction(BaseModel):
     classificationMode: str = "nih14"
 
 
+class ClinicalReview(BaseModel):
+    """Human review of the AI prediction (kept separate from AI output)."""
+
+    decision: ReviewDecision
+    finalLabel: FindingLabel
+    note: str = ""
+    reviewedAt: datetime
+
+
 class Study(BaseModel):
     """Matches the frontend Study type in src/types/study.ts."""
 
@@ -39,6 +49,7 @@ class Study(BaseModel):
     imageUrl: str
     gradCamUrl: str | None = None
     notes: str = ""
+    review: ClinicalReview | None = None
 
     model_config = {"from_attributes": True}
 
@@ -65,6 +76,12 @@ class StudyUpdate(BaseModel):
     modality: str | None = None
 
 
+class StudyReviewRequest(BaseModel):
+    decision: ReviewDecision
+    finalLabel: FindingLabel | None = None
+    note: str = ""
+
+
 class GradCamMeta(BaseModel):
     """Where the model focused for the summary finding (overlay badge)."""
 
@@ -86,6 +103,8 @@ class DashboardStats(BaseModel):
     pendingReview: int
     abnormalCount: int
     avgConfidence: float
+    overrideRate: float = 0.0
+    reviewedCount: int = 0
     timestamp: datetime
 
 
