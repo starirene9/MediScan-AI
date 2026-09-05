@@ -21,6 +21,7 @@ import {
   fetchStudiesData,
   removeStudy,
   selectStudy,
+  submitClinicalReview,
   updateStudyFields,
 } from "../../features/studies/studies-slice";
 import SearchFilter from "../../components/shared/SearchFilter";
@@ -81,6 +82,22 @@ const StudiesWorklist = () => {
       })
     ).unwrap();
     setEditOpen(false);
+  };
+
+  const handleSubmitReview = async (payload: {
+    decision: "accepted" | "overridden";
+    finalLabel?: string;
+    note?: string;
+  }) => {
+    if (!selectedStudy) return;
+    await dispatch(
+      submitClinicalReview({
+        id: selectedStudy.id,
+        decision: payload.decision,
+        finalLabel: payload.finalLabel,
+        note: payload.note,
+      })
+    ).unwrap();
   };
 
   const handleDelete = async (id: string) => {
@@ -270,6 +287,7 @@ const StudiesWorklist = () => {
         saving={mutating}
         onClose={() => setEditOpen(false)}
         onSave={handleSaveEdit}
+        onSubmitReview={handleSubmitReview}
       />
     </Box>
   );

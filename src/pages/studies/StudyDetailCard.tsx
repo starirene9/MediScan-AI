@@ -16,7 +16,6 @@ import { useNavigate } from "react-router-dom";
 import { useIntl } from "react-intl";
 import { AppDispatch, RootState } from "../../store/store";
 import { fetchStudiesData } from "../../features/studies/studies-slice";
-import { getStudyStatusColor } from "../../utils";
 import ConfidenceChip from "../../components/shared/ConfidenceChip";
 
 interface StudyDetailCardProps {
@@ -76,16 +75,32 @@ const StudyDetailCard = ({
         </Typography>
         <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
           <Chip size="small" label={study.id} color="primary" />
-          <Chip
-            size="small"
-            label={intl.formatMessage({
-              id: `study_status_${study.status.toLowerCase()}`,
-            })}
-            sx={{
-              bgcolor: `${getStudyStatusColor(study.status)}22`,
-              color: getStudyStatusColor(study.status),
-            }}
-          />
+          {study.review?.decision === "overridden" ? (
+            <Chip
+              size="small"
+              color="warning"
+              label={intl.formatMessage(
+                { id: "review_badge_overridden" },
+                { label: study.review.finalLabel.replace(/_/g, " ") }
+              )}
+              sx={{ fontWeight: 600 }}
+            />
+          ) : study.review?.decision === "accepted" ? (
+            <Chip
+              size="small"
+              color="success"
+              label={intl.formatMessage({ id: "review_badge_accepted" })}
+              sx={{ fontWeight: 600 }}
+            />
+          ) : (
+            <Chip
+              size="small"
+              color="info"
+              variant="outlined"
+              label={intl.formatMessage({ id: "review_badge_pending" })}
+              sx={{ fontWeight: 600 }}
+            />
+          )}
         </Box>
       </Card>
 
@@ -120,6 +135,14 @@ const StudyDetailCard = ({
             label={study.prediction.label}
             confidence={study.prediction.confidence}
           />
+        </Box>
+        <Box>
+          <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+            {intl.formatMessage({ id: "clinical_review" })}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {intl.formatMessage({ id: "clinical_review_open_detail_hint" })}
+          </Typography>
         </Box>
       </Stack>
 

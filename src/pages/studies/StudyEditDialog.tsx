@@ -5,23 +5,24 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  Divider,
   FormControl,
   InputLabel,
   MenuItem,
   Select,
   Stack,
   TextField,
+  Typography,
 } from "@mui/material";
 import { useIntl } from "react-intl";
 import { Study } from "../../types/study";
-import { studyStatusOptions } from "../../utils";
+import ClinicalReviewPanel from "../../components/shared/ClinicalReviewPanel";
 
 export type StudyEditValues = {
   patientName: string;
   age: number;
   gender: string;
   modality: string;
-  status: Study["status"];
   notes: string;
 };
 
@@ -31,6 +32,11 @@ interface StudyEditDialogProps {
   saving?: boolean;
   onClose: () => void;
   onSave: (values: StudyEditValues) => void;
+  onSubmitReview?: (payload: {
+    decision: "accepted" | "overridden";
+    finalLabel?: string;
+    note?: string;
+  }) => Promise<void> | void;
 }
 
 const GENDERS = ["Female", "Male", "Unknown"] as const;
@@ -41,6 +47,7 @@ const StudyEditDialog = ({
   saving = false,
   onClose,
   onSave,
+  onSubmitReview,
 }: StudyEditDialogProps) => {
   const intl = useIntl();
   const [values, setValues] = useState<StudyEditValues>({
@@ -48,7 +55,6 @@ const StudyEditDialog = ({
     age: 0,
     gender: "Unknown",
     modality: "Chest X-ray",
-    status: "Pending",
     notes: "",
   });
 
@@ -59,7 +65,6 @@ const StudyEditDialog = ({
       age: study.age,
       gender: study.gender || "Unknown",
       modality: study.modality || "Chest X-ray",
-      status: study.status,
       notes: study.notes || "",
     });
   }, [study, open]);
@@ -123,27 +128,6 @@ const StudyEditDialog = ({
             fullWidth
             size="small"
           />
-          <FormControl fullWidth size="small">
-            <InputLabel>{intl.formatMessage({ id: "status" })}</InputLabel>
-            <Select
-              label={intl.formatMessage({ id: "status" })}
-              value={values.status}
-              onChange={(e) =>
-                setValues((prev) => ({
-                  ...prev,
-                  status: e.target.value as Study["status"],
-                }))
-              }
-            >
-              {studyStatusOptions.map((status) => (
-                <MenuItem key={status} value={status}>
-                  {intl.formatMessage({
-                    id: `study_status_${status.toLowerCase()}`,
-                  })}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
           <TextField
             label={intl.formatMessage({ id: "radiologist_notes" })}
             value={values.notes}
@@ -155,6 +139,22 @@ const StudyEditDialog = ({
             minRows={3}
             size="small"
           />
+
+          {study && onSubmitReview && (
+            <>
+              <Divider />
+              <Typography variant="subtitle2" sx={{ color: "var(--color-navy)" }}>
+                {intl.formatMessage({ id: "clinical_review" })}
+              </Typography>
+              <ClinicalReviewPanel
+                study={study}
+                submitting={saving}
+                allowChange
+                hideTitle
+                onSubmit={onSubmitReview}
+              />
+            </>
+          )}
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>

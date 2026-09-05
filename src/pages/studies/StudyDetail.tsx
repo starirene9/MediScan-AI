@@ -150,6 +150,7 @@ const StudyDetail = () => {
               <ClinicalReviewPanel
                 study={study}
                 submitting={mutating}
+                allowChange
                 onSubmit={handleReview}
               />
             </Paper>
