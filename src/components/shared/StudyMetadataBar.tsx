@@ -1,7 +1,6 @@
 import { Box, Chip, Stack, Typography } from "@mui/material";
 import { useIntl } from "react-intl";
 import { Study, effectiveFindingLabel } from "../../types/study";
-import { getStudyStatusColor } from "../../utils";
 import ConfidenceChip from "./ConfidenceChip";
 
 interface StudyMetadataBarProps {
@@ -35,17 +34,6 @@ const StudyMetadataBar = ({ study }: StudyMetadataBarProps) => {
       </Typography>
       <Stack direction="row" spacing={1} sx={{ ml: { sm: "auto" }, flexWrap: "wrap" }}>
         <Chip size="small" label={study.id} variant="outlined" />
-        <Chip
-          size="small"
-          label={intl.formatMessage({
-            id: `study_status_${study.status.toLowerCase()}`,
-          })}
-          sx={{
-            bgcolor: `${getStudyStatusColor(study.status)}18`,
-            color: getStudyStatusColor(study.status),
-            fontWeight: 600,
-          }}
-        />
         <ConfidenceChip
           label={study.prediction.label}
           confidence={study.prediction.confidence}
@@ -58,10 +46,11 @@ const StudyMetadataBar = ({ study }: StudyMetadataBarProps) => {
               review.decision === "overridden"
                 ? intl.formatMessage(
                     { id: "review_badge_overridden" },
-                    { label: finalLabel }
+                    { label: finalLabel.replace(/_/g, " ") }
                   )
                 : intl.formatMessage({ id: "review_badge_accepted" })
             }
+            sx={{ fontWeight: 600 }}
           />
         ) : (
           <Chip
@@ -69,6 +58,7 @@ const StudyMetadataBar = ({ study }: StudyMetadataBarProps) => {
             color="info"
             variant="outlined"
             label={intl.formatMessage({ id: "review_badge_pending" })}
+            sx={{ fontWeight: 600 }}
           />
         )}
       </Stack>

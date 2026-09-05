@@ -145,6 +145,9 @@ export const messages: Record<string, Record<string, string>> = {
     review_badge_pending: "Needs review",
     review_badge_accepted: "Accepted",
     review_badge_overridden: "Final: {label}",
+    clinical_review_open_detail_hint:
+      "Use Edit or Open Study Detail to Accept or Override the AI result.",
+    review_change: "Change review",
   },
   ko: {
     welcome: "안녕하세요, {name}",
@@ -290,6 +293,9 @@ export const messages: Record<string, Record<string, string>> = {
     review_badge_pending: "리뷰 필요",
     review_badge_accepted: "수락됨",
     review_badge_overridden: "최종: {label}",
+    clinical_review_open_detail_hint:
+      "Edit 또는 Study Detail에서 AI 결과를 수락하거나 소견을 수정하세요.",
+    review_change: "리뷰 변경",
   },
   es: {
     welcome: "Hola, {name}",
@@ -437,5 +443,8 @@ export const messages: Record<string, Record<string, string>> = {
     review_badge_pending: "Pendiente de revisión",
     review_badge_accepted: "Aceptado",
     review_badge_overridden: "Final: {label}",
+    clinical_review_open_detail_hint:
+      "Use Editar o el detalle del estudio para Aceptar o Anular el resultado de la IA.",
+    review_change: "Cambiar revisión",
   },
 };

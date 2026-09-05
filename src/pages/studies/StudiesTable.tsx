@@ -18,6 +18,7 @@ import {
   Divider,
   IconButton,
   Tooltip,
+  Chip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -25,7 +26,6 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "../../store/store";
 import { fetchStudiesData } from "../../features/studies/studies-slice";
-import { getStudyStatusColor } from "../../utils";
 import ConfidenceChip from "../../components/shared/ConfidenceChip";
 import { useIntl } from "react-intl";
 
@@ -148,7 +148,7 @@ const StudiesTable = ({
                   {intl.formatMessage({ id: "study_id" })}
                 </TableCell>
                 {!isMobile && (
-                  <TableCell sx={{ fontWeight: "bold", width: "18%" }}>
+                  <TableCell sx={{ fontWeight: "bold", width: "20%" }}>
                     {intl.formatMessage({ id: "patient_name" })}
                   </TableCell>
                 )}
@@ -157,13 +157,13 @@ const StudiesTable = ({
                     {intl.formatMessage({ id: "uploaded_at" })}
                   </TableCell>
                 )}
-                <TableCell sx={{ fontWeight: "bold", width: "22%" }}>
+                <TableCell sx={{ fontWeight: "bold", width: isMobile ? "32%" : "18%" }}>
                   {intl.formatMessage({ id: "ai_result" })}
                 </TableCell>
-                <TableCell sx={{ fontWeight: "bold", width: "12%" }}>
-                  {intl.formatMessage({ id: "status" })}
+                <TableCell sx={{ fontWeight: "bold", width: isMobile ? "32%" : "18%" }}>
+                  {intl.formatMessage({ id: "clinical_review" })}
                 </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", width: "16%" }}>
+                <TableCell align="center" sx={{ fontWeight: "bold", width: "14%" }}>
                   {intl.formatMessage({ id: "actions" })}
                 </TableCell>
               </TableRow>
@@ -211,45 +211,38 @@ const StudiesTable = ({
                       </TableCell>
                     )}
                     <TableCell>
-                      <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                        <ConfidenceChip
-                          label={study.prediction.label}
-                          confidence={study.prediction.confidence}
-                        />
-                        {study.review?.decision === "overridden" ? (
-                          <Typography variant="caption" color="warning.main" fontWeight={600}>
-                            {intl.formatMessage(
-                              { id: "review_badge_overridden" },
-                              { label: study.review.finalLabel }
-                            )}
-                          </Typography>
-                        ) : study.review?.decision === "accepted" ? (
-                          <Typography variant="caption" color="success.main" fontWeight={600}>
-                            {intl.formatMessage({ id: "review_badge_accepted" })}
-                          </Typography>
-                        ) : (
-                          <Typography variant="caption" color="info.main">
-                            {intl.formatMessage({ id: "review_badge_pending" })}
-                          </Typography>
-                        )}
-                      </Box>
+                      <ConfidenceChip
+                        label={study.prediction.label}
+                        confidence={study.prediction.confidence}
+                      />
                     </TableCell>
                     <TableCell>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          px: 1,
-                          py: 0.5,
-                          borderRadius: 1,
-                          bgcolor: `${getStudyStatusColor(study.status)}22`,
-                          color: getStudyStatusColor(study.status),
-                          fontWeight: 600,
-                        }}
-                      >
-                        {intl.formatMessage({
-                          id: `study_status_${study.status.toLowerCase()}`,
-                        })}
-                      </Typography>
+                      {study.review?.decision === "overridden" ? (
+                        <Chip
+                          size="small"
+                          color="warning"
+                          label={intl.formatMessage(
+                            { id: "review_badge_overridden" },
+                            { label: study.review.finalLabel.replace(/_/g, " ") }
+                          )}
+                          sx={{ fontWeight: 600 }}
+                        />
+                      ) : study.review?.decision === "accepted" ? (
+                        <Chip
+                          size="small"
+                          color="success"
+                          label={intl.formatMessage({ id: "review_badge_accepted" })}
+                          sx={{ fontWeight: 600 }}
+                        />
+                      ) : (
+                        <Chip
+                          size="small"
+                          color="info"
+                          variant="outlined"
+                          label={intl.formatMessage({ id: "review_badge_pending" })}
+                          sx={{ fontWeight: 600 }}
+                        />
+                      )}
                     </TableCell>
                     <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                       {onEditStudy && (

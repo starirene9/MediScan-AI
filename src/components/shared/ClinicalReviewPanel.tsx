@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -22,6 +22,9 @@ import {
 interface ClinicalReviewPanelProps {
   study: Study;
   submitting?: boolean;
+  /** Allow changing an existing Accept/Override decision. */
+  allowChange?: boolean;
+  hideTitle?: boolean;
   onSubmit: (payload: {
     decision: "accepted" | "overridden";
     finalLabel?: string;
@@ -35,9 +38,12 @@ const findingLabelId = (name: string) =>
 const ClinicalReviewPanel = ({
   study,
   submitting = false,
+  allowChange = false,
+  hideTitle = false,
   onSubmit,
 }: ClinicalReviewPanelProps) => {
   const intl = useIntl();
+  const [editing, setEditing] = useState(false);
   const [mode, setMode] = useState<"idle" | "override">("idle");
   const [finalLabel, setFinalLabel] = useState(study.prediction.label);
   const [note, setNote] = useState("");
@@ -45,13 +51,55 @@ const ClinicalReviewPanel = ({
 
   const review = study.review;
 
-  if (review) {
+  useEffect(() => {
+    setEditing(false);
+    setMode("idle");
+    setNote(study.review?.note ?? "");
+    setFinalLabel(study.prediction.label);
+    setError(null);
+  }, [study.id, study.review?.decision, study.review?.finalLabel, study.prediction.label]);
+
+  const handleAccept = async () => {
+    setError(null);
+    try {
+      await onSubmit({ decision: "accepted", note: note.trim() });
+      setEditing(false);
+      setMode("idle");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : intl.formatMessage({ id: "review_failed" }));
+    }
+  };
+
+  const handleOverride = async () => {
+    if (finalLabel === study.prediction.label) {
+      setError(intl.formatMessage({ id: "review_override_same_label" }));
+      return;
+    }
+    setError(null);
+    try {
+      await onSubmit({
+        decision: "overridden",
+        finalLabel,
+        note: note.trim(),
+      });
+      setEditing(false);
+      setMode("idle");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : intl.formatMessage({ id: "review_failed" }));
+    }
+  };
+
+  const showEditor = !review || editing;
+
+  if (!showEditor && review) {
     const isOverride = review.decision === "overridden";
     return (
       <Box>
-        <Typography variant="subtitle1" sx={{ mb: 1.5, color: "var(--color-navy)" }}>
-          {intl.formatMessage({ id: "clinical_review" })}
-        </Typography>
+        {!hideTitle && (
+          <Typography variant="subtitle1" sx={{ mb: 1.5, color: "var(--color-navy)" }}>
+            {intl.formatMessage({ id: "clinical_review" })}
+          </Typography>
+        )}
         <Alert
           severity={isOverride ? "warning" : "success"}
           variant="outlined"
@@ -111,44 +159,35 @@ const ClinicalReviewPanel = ({
             </Typography>
           </Stack>
         </Alert>
-        <Typography variant="caption" color="text.secondary">
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: allowChange ? 1 : 0 }}>
           {intl.formatMessage({ id: "review_ai_preserved" })}
         </Typography>
+        {allowChange && (
+          <Button
+            size="small"
+            variant="outlined"
+            disabled={submitting}
+            onClick={() => {
+              setEditing(true);
+              setMode("idle");
+              setNote(review.note || "");
+              setError(null);
+            }}
+          >
+            {intl.formatMessage({ id: "review_change" })}
+          </Button>
+        )}
       </Box>
     );
   }
 
-  const handleAccept = async () => {
-    setError(null);
-    try {
-      await onSubmit({ decision: "accepted", note: note.trim() });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : intl.formatMessage({ id: "review_failed" }));
-    }
-  };
-
-  const handleOverride = async () => {
-    if (finalLabel === study.prediction.label) {
-      setError(intl.formatMessage({ id: "review_override_same_label" }));
-      return;
-    }
-    setError(null);
-    try {
-      await onSubmit({
-        decision: "overridden",
-        finalLabel,
-        note: note.trim(),
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : intl.formatMessage({ id: "review_failed" }));
-    }
-  };
-
   return (
     <Box>
-      <Typography variant="subtitle1" sx={{ mb: 1, color: "var(--color-navy)" }}>
-        {intl.formatMessage({ id: "clinical_review" })}
-      </Typography>
+      {!hideTitle && (
+        <Typography variant="subtitle1" sx={{ mb: 1, color: "var(--color-navy)" }}>
+          {intl.formatMessage({ id: "clinical_review" })}
+        </Typography>
+      )}
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
         {intl.formatMessage({ id: "clinical_review_hint" })}
       </Typography>
@@ -160,7 +199,7 @@ const ClinicalReviewPanel = ({
       )}
 
       {mode === "idle" ? (
-        <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={1} flexWrap="wrap">
           <Button
             variant="contained"
             color="success"
@@ -176,15 +215,26 @@ const ClinicalReviewPanel = ({
             onClick={() => {
               setMode("override");
               setFinalLabel(
-                isNormalPrediction(study.prediction.label)
-                  ? "Nodule"
-                  : "Normal"
+                isNormalPrediction(study.prediction.label) ? "Nodule" : "Normal"
               );
               setError(null);
             }}
           >
             {intl.formatMessage({ id: "review_override" })}
           </Button>
+          {review && editing && (
+            <Button
+              variant="text"
+              disabled={submitting}
+              onClick={() => {
+                setEditing(false);
+                setMode("idle");
+                setError(null);
+              }}
+            >
+              {intl.formatMessage({ id: "cancel" })}
+            </Button>
+          )}
         </Stack>
       ) : (
         <Stack spacing={1.5}>
