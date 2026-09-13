@@ -18,9 +18,9 @@ import { useIntl } from "react-intl";
 import { AppDispatch, RootState } from "../../store/store";
 import {
   fetchStudiesData,
+  saveStudyNotes,
   selectStudy,
   submitClinicalReview,
-  updateStudy,
 } from "../../features/studies/studies-slice";
 import ImageViewer from "../../components/shared/ImageViewer";
 import PredictionPanel from "../../components/shared/PredictionPanel";
@@ -36,6 +36,7 @@ const StudyDetail = () => {
   const { studies, loading, mutating } = useSelector((state: RootState) => state.studies);
   const study = id ? studies[id] : null;
   const [notes, setNotes] = useState("");
+  const [notesError, setNotesError] = useState<string | null>(null);
   const [listening, setListening] = useState(false);
   const { startListening, stopListening } = useSpeechToText((text) =>
     setNotes((prev) => prev + text)
@@ -53,9 +54,19 @@ const StudyDetail = () => {
     if (study) setNotes(study.notes);
   }, [study]);
 
-  const handleSaveNotes = () => {
-    if (study) {
-      dispatch(updateStudy({ id: study.id, notes }));
+  const handleSaveNotes = async () => {
+    if (!study) return;
+    setNotesError(null);
+    try {
+      await dispatch(saveStudyNotes({ id: study.id, notes })).unwrap();
+      dispatch(selectStudy(study.id));
+      navigate("/studies");
+    } catch (err) {
+      setNotesError(
+        err instanceof Error
+          ? err.message
+          : intl.formatMessage({ id: "save_notes_failed" })
+      );
     }
   };
 
@@ -168,6 +179,11 @@ const StudyDetail = () => {
               onChange={(e) => setNotes(e.target.value)}
               placeholder={intl.formatMessage({ id: "notes_placeholder" })}
             />
+            {notesError && (
+              <Typography variant="body2" color="error" sx={{ mt: 1 }}>
+                {notesError}
+              </Typography>
+            )}
             <Box sx={{ display: "flex", justifyContent: "space-between", mt: 1 }}>
               <Tooltip title={listening ? "Stop" : "Voice input"}>
                 <IconButton onClick={toggleMic}>

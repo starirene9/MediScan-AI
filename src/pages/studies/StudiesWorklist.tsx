@@ -81,7 +81,10 @@ const StudiesWorklist = () => {
         ...values,
       })
     ).unwrap();
+    dispatch(selectStudy(selectedStudy.id));
     setEditOpen(false);
+    setDrawerOpen(false);
+    navigate("/studies");
   };
 
   const handleSubmitReview = async (payload: {

@@ -160,10 +160,13 @@ const StudiesTable = ({
                 <TableCell sx={{ fontWeight: "bold", width: isMobile ? "32%" : "18%" }}>
                   {intl.formatMessage({ id: "ai_result" })}
                 </TableCell>
-                <TableCell sx={{ fontWeight: "bold", width: isMobile ? "32%" : "18%" }}>
+                <TableCell sx={{ fontWeight: "bold", width: isMobile ? "24%" : "16%" }}>
                   {intl.formatMessage({ id: "clinical_review" })}
                 </TableCell>
-                <TableCell align="center" sx={{ fontWeight: "bold", width: "14%" }}>
+                <TableCell sx={{ fontWeight: "bold", width: isMobile ? "22%" : "16%" }}>
+                  {intl.formatMessage({ id: "radiologist_notes" })}
+                </TableCell>
+                <TableCell align="center" sx={{ fontWeight: "bold", width: "12%" }}>
                   {intl.formatMessage({ id: "actions" })}
                 </TableCell>
               </TableRow>
@@ -243,6 +246,21 @@ const StudiesTable = ({
                           sx={{ fontWeight: 600 }}
                         />
                       )}
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        variant="body2"
+                        color={study.notes ? "text.primary" : "text.secondary"}
+                        sx={{
+                          display: "-webkit-box",
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: "vertical",
+                          overflow: "hidden",
+                          wordBreak: "break-word",
+                        }}
+                      >
+                        {study.notes?.trim() || "—"}
+                      </Typography>
                     </TableCell>
                     <TableCell align="center" onClick={(e) => e.stopPropagation()}>
                       {onEditStudy && (
