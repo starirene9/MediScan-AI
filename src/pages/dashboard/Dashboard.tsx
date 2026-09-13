@@ -55,7 +55,7 @@ const Dashboard = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4, 1fr)" },
+          gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(5, 1fr)" },
           gap: 1.5,
           flexShrink: 0,
         }}
@@ -71,6 +71,12 @@ const Dashboard = () => {
           labelId="stat_abnormal"
           value={stats.abnormalCount}
           color="#DC143C"
+          compact
+        />
+        <StatCard
+          labelId="stat_override_rate"
+          value={`${Math.round((stats.overrideRate ?? 0) * 100)}%`}
+          color="#E67E22"
           compact
         />
         <StatCard

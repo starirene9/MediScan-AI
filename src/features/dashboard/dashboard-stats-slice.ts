@@ -6,6 +6,8 @@ export interface DashboardStats {
   pendingReview: number;
   abnormalCount: number;
   avgConfidence: number;
+  overrideRate: number;
+  reviewedCount: number;
   timestamp: string;
 }
 
@@ -26,6 +28,8 @@ const emptyStats: DashboardStats = {
   pendingReview: 0,
   abnormalCount: 0,
   avgConfidence: 0,
+  overrideRate: 0,
+  reviewedCount: 0,
   timestamp: "",
 };
 

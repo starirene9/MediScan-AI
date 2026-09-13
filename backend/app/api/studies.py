@@ -2,7 +2,13 @@ from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.models.schemas import AnalyzeResponse, Study, StudyCreate, StudyUpdate
+from app.models.schemas import (
+    AnalyzeResponse,
+    Study,
+    StudyCreate,
+    StudyReviewRequest,
+    StudyUpdate,
+)
 from app.services import inference_service, storage_service, study_service
 
 router = APIRouter(prefix="/api/studies", tags=["studies"])
@@ -35,11 +41,6 @@ async def analyze_study(
 
     study = None
     if saveToWorklist:
-        status = (
-            "Normal"
-            if inference_service.is_normal_label(prediction.label)
-            else "Abnormal"
-        )
         study = study_service.create_study(
             db,
             StudyCreate(
@@ -48,7 +49,7 @@ async def analyze_study(
                 prediction=prediction,
                 imageUrl=image_url,
                 gradCamUrl=grad_cam_url,
-                status=status,
+                status="Pending",
             ),
         )
 
@@ -69,6 +70,13 @@ def get_study(study_id: str, db: Session = Depends(get_db)) -> Study:
 @router.post("", response_model=Study, status_code=201)
 def create_study(payload: StudyCreate, db: Session = Depends(get_db)) -> Study:
     return study_service.create_study(db, payload)
+
+
+@router.post("/{study_id}/review", response_model=Study)
+def review_study(
+    study_id: str, payload: StudyReviewRequest, db: Session = Depends(get_db)
+) -> Study:
+    return study_service.review_study(db, study_id, payload)
 
 
 @router.patch("/{study_id}", response_model=Study)

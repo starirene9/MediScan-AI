@@ -23,3 +23,15 @@ def ensure_schema(engine: Engine) -> None:
             conn.execute(
                 text("ALTER TABLE studies ADD COLUMN prediction_mode VARCHAR(32) DEFAULT 'nih14'")
             )
+        if "review_decision" not in cols:
+            conn.execute(
+                text("ALTER TABLE studies ADD COLUMN review_decision VARCHAR(32)")
+            )
+        if "final_label" not in cols:
+            conn.execute(
+                text("ALTER TABLE studies ADD COLUMN final_label VARCHAR(64)")
+            )
+        if "review_note" not in cols:
+            conn.execute(text("ALTER TABLE studies ADD COLUMN review_note TEXT"))
+        if "reviewed_at" not in cols:
+            conn.execute(text("ALTER TABLE studies ADD COLUMN reviewed_at DATETIME"))

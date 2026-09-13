@@ -211,10 +211,28 @@ const StudiesTable = ({
                       </TableCell>
                     )}
                     <TableCell>
-                      <ConfidenceChip
-                        label={study.prediction.label}
-                        confidence={study.prediction.confidence}
-                      />
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
+                        <ConfidenceChip
+                          label={study.prediction.label}
+                          confidence={study.prediction.confidence}
+                        />
+                        {study.review?.decision === "overridden" ? (
+                          <Typography variant="caption" color="warning.main" fontWeight={600}>
+                            {intl.formatMessage(
+                              { id: "review_badge_overridden" },
+                              { label: study.review.finalLabel }
+                            )}
+                          </Typography>
+                        ) : study.review?.decision === "accepted" ? (
+                          <Typography variant="caption" color="success.main" fontWeight={600}>
+                            {intl.formatMessage({ id: "review_badge_accepted" })}
+                          </Typography>
+                        ) : (
+                          <Typography variant="caption" color="info.main">
+                            {intl.formatMessage({ id: "review_badge_pending" })}
+                          </Typography>
+                        )}
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <Typography

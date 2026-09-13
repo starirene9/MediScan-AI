@@ -23,7 +23,7 @@ import useSpeechToText from "../../hooks/useSpeechToText";
 import { runAnalysis } from "../../services/analysisService";
 import { AnalysisRequestError, fetchHealth } from "../../services/apiClient";
 import { useAnalysisProgress } from "../../hooks/useAnalysisProgress";
-import { GradCamMeta, Prediction, isNormalPrediction } from "../../types/study";
+import { GradCamMeta, Prediction } from "../../types/study";
 
 const XrayUpload = () => {
   const intl = useIntl();
@@ -142,7 +142,7 @@ const XrayUpload = () => {
           age: 0,
           gender: "Unknown",
           modality: "Chest X-ray",
-          status: isNormalPrediction(prediction.label) ? "Normal" : "Abnormal",
+          status: "Pending",
           prediction,
           imageUrl: serverImageUrl || displayImageUrl,
           gradCamUrl,

@@ -7,6 +7,7 @@ import {
   fetchStudies,
   fetchStudy,
   patchStudy,
+  submitStudyReview,
 } from "../../services/apiClient";
 
 interface StudiesState {
@@ -83,6 +84,21 @@ export const saveStudyToWorklist = createAsyncThunk(
     gradCamUrl: string | null;
     notes: string;
   }) => createStudy(payload)
+);
+
+export const submitClinicalReview = createAsyncThunk(
+  "studies/submitClinicalReview",
+  async ({
+    id,
+    decision,
+    finalLabel,
+    note,
+  }: {
+    id: string;
+    decision: "accepted" | "overridden";
+    finalLabel?: string;
+    note?: string;
+  }) => submitStudyReview(id, { decision, finalLabel, note })
 );
 
 export const studiesSlice = createSlice({
@@ -170,6 +186,18 @@ export const studiesSlice = createSlice({
       .addCase(saveStudyToWorklist.fulfilled, (state, action) => {
         state.studies[action.payload.id] = action.payload;
         state.selectedStudyId = action.payload.id;
+      })
+      .addCase(submitClinicalReview.pending, (state) => {
+        state.mutating = true;
+        state.error = null;
+      })
+      .addCase(submitClinicalReview.fulfilled, (state, action) => {
+        state.mutating = false;
+        state.studies[action.payload.id] = action.payload;
+      })
+      .addCase(submitClinicalReview.rejected, (state, action) => {
+        state.mutating = false;
+        state.error = action.error.message || "Failed to submit clinical review";
       });
   },
 });
