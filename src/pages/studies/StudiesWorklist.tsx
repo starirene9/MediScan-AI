@@ -130,7 +130,6 @@ const StudiesWorklist = () => {
       selectedStudyId={selectedStudyId}
       onEdit={() => setEditOpen(true)}
       onDelete={() => selectedStudyId && handleDeleteRequest(selectedStudyId)}
-      hideTitle={isMobile}
     />
   );
 
@@ -229,7 +228,9 @@ const StudiesWorklist = () => {
               minWidth: 0,
               minHeight: 0,
               p: 2,
-              overflow: "auto",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
             }}
           >
             {detailCard}
@@ -249,7 +250,9 @@ const StudiesWorklist = () => {
             px: 2,
             pt: 1,
             pb: 2,
-            overflow: "auto",
+            overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
           },
         }}
       >
@@ -259,6 +262,7 @@ const StudiesWorklist = () => {
             flexDirection: "column",
             alignItems: "center",
             mb: 1,
+            flexShrink: 0,
           }}
         >
           <Box
@@ -275,12 +279,9 @@ const StudiesWorklist = () => {
               width: "100%",
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              justifyContent: "flex-end",
             }}
           >
-            <Typography variant="subtitle1" sx={{ color: "var(--color-navy)" }}>
-              {intl.formatMessage({ id: "study_information" })}
-            </Typography>
             <Tooltip title={intl.formatMessage({ id: "close" })}>
               <IconButton
                 size="small"
@@ -292,7 +293,7 @@ const StudiesWorklist = () => {
             </Tooltip>
           </Box>
         </Box>
-        {detailCard}
+        <Box sx={{ flex: 1, minHeight: 0, overflow: "hidden" }}>{detailCard}</Box>
       </Drawer>
 
       <StudyEditDialog

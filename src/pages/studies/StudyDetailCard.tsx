@@ -3,7 +3,6 @@ import {
   Button,
   Card,
   Chip,
-  Divider,
   LinearProgress,
   Stack,
   Typography,
@@ -22,14 +21,12 @@ interface StudyDetailCardProps {
   selectedStudyId?: string | null;
   onEdit?: () => void;
   onDelete?: () => void;
-  hideTitle?: boolean;
 }
 
 const StudyDetailCard = ({
   selectedStudyId,
   onEdit,
   onDelete,
-  hideTitle = false,
 }: StudyDetailCardProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -50,22 +47,26 @@ const StudyDetailCard = ({
   }
   if (!study) {
     return (
-      <Typography color="textSecondary" sx={{ textAlign: "center", mt: 4 }}>
+      <Typography color="textSecondary" sx={{ textAlign: "center", mt: 2 }}>
         {intl.formatMessage({ id: "no_study_selected" })}
       </Typography>
     );
   }
 
   return (
-    <Box>
-      {!hideTitle && (
-        <Typography variant="subtitle1" sx={{ mb: 2, color: "var(--color-navy)" }}>
-          {intl.formatMessage({ id: "study_information" })}
+    <Box
+      sx={{
+        height: "100%",
+        minHeight: 0,
+        display: "flex",
+        flexDirection: "column",
+        gap: 1.5,
+      }}
+    >
+      <Card variant="outlined" sx={{ p: 1.5, flexShrink: 0 }}>
+        <Typography variant="subtitle1" fontWeight={700} noWrap>
+          {study.patientName}
         </Typography>
-      )}
-
-      <Card sx={{ p: 2, mb: 2 }}>
-        <Typography variant="h6">{study.patientName}</Typography>
         <Typography variant="body2" color="textSecondary">
           {study.age} {intl.formatMessage({ id: "years" })} ·{" "}
           {intl.formatMessage({
@@ -104,23 +105,21 @@ const StudyDetailCard = ({
         </Box>
       </Card>
 
-      <Divider sx={{ my: 2 }} />
-
-      <Stack spacing={2}>
+      <Stack spacing={1.25} sx={{ flex: 1, minHeight: 0 }}>
         <Box>
-          <Typography variant="subtitle2" color="textSecondary">
+          <Typography variant="caption" color="textSecondary">
             {intl.formatMessage({ id: "modality" })}
           </Typography>
-          <Typography>{study.modality}</Typography>
+          <Typography variant="body2">{study.modality}</Typography>
         </Box>
         <Box>
-          <Typography variant="subtitle2" color="textSecondary">
+          <Typography variant="caption" color="textSecondary">
             {intl.formatMessage({ id: "uploaded_at" })}
           </Typography>
-          <Typography>
+          <Typography variant="body2">
             {intl.formatDate(new Date(study.uploadedAt), {
               year: "numeric",
-              month: "long",
+              month: "short",
               day: "numeric",
               hour: "2-digit",
               minute: "2-digit",
@@ -128,7 +127,7 @@ const StudyDetailCard = ({
           </Typography>
         </Box>
         <Box>
-          <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+          <Typography variant="caption" color="textSecondary" display="block" sx={{ mb: 0.5 }}>
             {intl.formatMessage({ id: "ai_result" })}
           </Typography>
           <ConfidenceChip
@@ -137,7 +136,7 @@ const StudyDetailCard = ({
           />
         </Box>
         <Box>
-          <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+          <Typography variant="caption" color="textSecondary" display="block">
             {intl.formatMessage({ id: "clinical_review" })}
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -146,10 +145,11 @@ const StudyDetailCard = ({
         </Box>
       </Stack>
 
-      <Stack spacing={1} sx={{ mt: 3 }}>
+      <Stack spacing={1} sx={{ flexShrink: 0 }}>
         <Button
           variant="contained"
           fullWidth
+          size="small"
           onClick={() => navigate(`/studies/${study.id}`)}
         >
           {intl.formatMessage({ id: "open_study_detail" })}
@@ -158,6 +158,7 @@ const StudyDetailCard = ({
           <Button
             variant="outlined"
             fullWidth
+            size="small"
             startIcon={<EditIcon />}
             onClick={onEdit}
             disabled={mutating}
@@ -170,6 +171,7 @@ const StudyDetailCard = ({
             variant="outlined"
             color="error"
             fullWidth
+            size="small"
             startIcon={<DeleteIcon />}
             onClick={onDelete}
             disabled={mutating}
