@@ -84,6 +84,8 @@ const StudyDetail = () => {
         note: payload.note,
       })
     ).unwrap();
+    dispatch(selectStudy(study.id));
+    navigate("/studies");
   };
 
   const toggleMic = () => {

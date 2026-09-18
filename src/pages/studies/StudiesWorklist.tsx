@@ -2,6 +2,10 @@ import { useEffect, useState } from "react";
 import {
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Drawer,
   IconButton,
   Paper,
@@ -34,6 +38,7 @@ const StudiesWorklist = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [searchTerm, setSearchTerm] = useState("");
   const [editOpen, setEditOpen] = useState(false);
+  const [deleteStudyId, setDeleteStudyId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
@@ -101,14 +106,20 @@ const StudiesWorklist = () => {
         note: payload.note,
       })
     ).unwrap();
+    dispatch(selectStudy(selectedStudy.id));
+    setEditOpen(false);
+    setDrawerOpen(false);
+    navigate("/studies");
   };
 
-  const handleDelete = async (id: string) => {
-    const ok = window.confirm(
-      intl.formatMessage({ id: "confirm_delete_study" }, { id })
-    );
-    if (!ok) return;
-    await dispatch(removeStudy(id)).unwrap();
+  const handleDeleteRequest = (id: string) => {
+    setDeleteStudyId(id);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteStudyId) return;
+    await dispatch(removeStudy(deleteStudyId)).unwrap();
+    setDeleteStudyId(null);
     if (isMobile) {
       setDrawerOpen(false);
     }
@@ -118,7 +129,7 @@ const StudiesWorklist = () => {
     <StudyDetailCard
       selectedStudyId={selectedStudyId}
       onEdit={() => setEditOpen(true)}
-      onDelete={() => selectedStudyId && handleDelete(selectedStudyId)}
+      onDelete={() => selectedStudyId && handleDeleteRequest(selectedStudyId)}
       hideTitle={isMobile}
     />
   );
@@ -207,7 +218,7 @@ const StudiesWorklist = () => {
               dispatch(selectStudy(id));
               setEditOpen(true);
             }}
-            onDeleteStudy={handleDelete}
+            onDeleteStudy={handleDeleteRequest}
           />
         </Paper>
 
@@ -292,6 +303,39 @@ const StudiesWorklist = () => {
         onSave={handleSaveEdit}
         onSubmitReview={handleSubmitReview}
       />
+
+      <Dialog
+        open={Boolean(deleteStudyId)}
+        onClose={() => !mutating && setDeleteStudyId(null)}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>{intl.formatMessage({ id: "delete_study" })}</DialogTitle>
+        <DialogContent>
+          <Typography>
+            {intl.formatMessage(
+              { id: "confirm_delete_study" },
+              { id: deleteStudyId ?? "" }
+            )}
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button
+            onClick={() => setDeleteStudyId(null)}
+            disabled={mutating}
+          >
+            {intl.formatMessage({ id: "cancel" })}
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            disabled={mutating}
+            onClick={handleDeleteConfirm}
+          >
+            {intl.formatMessage({ id: "delete_study" })}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
