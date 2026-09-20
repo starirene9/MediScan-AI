@@ -131,3 +131,115 @@ def test_accept_and_override_review(client):
     assert "overrideRate" in stats
     assert "reviewedCount" in stats
     assert stats["pendingReview"] >= 0
+
+
+def test_chat_requires_groq_api_key(client):
+    response = client.post(
+        "/api/chat",
+        json={"messages": [{"role": "user", "content": "What is effusion?"}]},
+    )
+    assert response.status_code == 503
+    assert "GROQ_API_KEY" in response.json()["detail"]
+
+
+def test_chat_with_mocked_groq(client, monkeypatch):
+    monkeypatch.setattr(
+        "app.services.chat_service.settings.groq_api_key", "test-key"
+    )
+    monkeypatch.setattr(
+        "app.services.chat_service.settings.groq_model", "llama-3.1-8b-instant"
+    )
+
+    class FakeResponse:
+        status_code = 200
+
+        def json(self):
+            return {
+                "model": "llama-3.1-8b-instant",
+                "choices": [
+                    {
+                        "message": {
+                            "role": "assistant",
+                            "content": "Effusion is fluid in the pleural space. Clinical correlation required.",
+                        }
+                    }
+                ],
+            }
+
+    class FakeAsyncClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return False
+
+        async def post(self, *args, **kwargs):
+            return FakeResponse()
+
+    monkeypatch.setattr("app.services.chat_service.httpx.AsyncClient", FakeAsyncClient)
+
+    response = client.post(
+        "/api/chat",
+        json={"messages": [{"role": "user", "content": "What is effusion?"}]},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["message"]["role"] == "assistant"
+    assert "Effusion" in payload["message"]["content"]
+    assert payload["model"] == "llama-3.1-8b-instant"
+
+
+def test_chat_with_study_context(client, monkeypatch):
+    monkeypatch.setattr(
+        "app.services.chat_service.settings.groq_api_key", "test-key"
+    )
+
+    captured = {}
+
+    class FakeResponse:
+        status_code = 200
+
+        def json(self):
+            return {
+                "model": "llama-3.1-8b-instant",
+                "choices": [
+                    {"message": {"role": "assistant", "content": "Noted."}}
+                ],
+            }
+
+    class FakeAsyncClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return False
+
+        async def post(self, url, headers=None, json=None):
+            captured["json"] = json
+            return FakeResponse()
+
+    monkeypatch.setattr("app.services.chat_service.httpx.AsyncClient", FakeAsyncClient)
+
+    studies = client.get("/api/studies").json()
+    study_id = studies[0]["id"]
+
+    response = client.post(
+        "/api/chat",
+        json={
+            "messages": [{"role": "user", "content": "Summarize this study."}],
+            "studyId": study_id,
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["studyId"] == study_id
+    system_contents = [
+        m["content"] for m in captured["json"]["messages"] if m["role"] == "system"
+    ]
+    assert any(study_id in content for content in system_contents)
+    assert any("aiPrimaryLabel" in content for content in system_contents)

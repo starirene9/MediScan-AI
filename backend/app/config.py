@@ -26,8 +26,14 @@ class Settings(BaseSettings):
     #   grouped → roll up via app.ml.pathologies.GROUP_MAP
     classification_mode: str = "nih14"
 
+    # Clinical assistant (Groq OpenAI-compatible chat API)
+    groq_api_key: str = ""
+    groq_model: str = "qwen/qwen3.8-27b"
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    groq_timeout_seconds: float = 45.0
+
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(BACKEND_ROOT / ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )

@@ -149,6 +149,23 @@ export const messages: Record<string, Record<string, string>> = {
     clinical_review_open_detail_hint:
       "Use Edit or Open Study Detail to Accept or Override the AI result.",
     review_change: "Change review",
+    medical_chatbot: "Clinical Assistant",
+    medical_chatbot_subtitle: "Medical LLM Q&A",
+    medical_chatbot_placeholder: "Ask a clinical question...",
+    medical_chatbot_send: "Send",
+    medical_chatbot_welcome:
+      "Ask about findings, differentials, or imaging interpretation. Responses are for clinical reference only — not a diagnosis.",
+    medical_chatbot_disclaimer:
+      "For clinical reference only. Not a substitute for professional judgment.",
+    medical_chatbot_stub_reply:
+      "Medical LLM connection is not wired yet. The chat UI is ready for the next step.",
+    medical_chatbot_thinking: "Thinking...",
+    medical_chatbot_not_configured:
+      "Clinical assistant is not configured. Set GROQ_API_KEY on the API server.",
+    medical_chatbot_timeout:
+      "The clinical assistant timed out. Please try again.",
+    medical_chatbot_error:
+      "Could not reach the clinical assistant. Please try again.",
   },
   ko: {
     welcome: "안녕하세요, {name}",
@@ -298,6 +315,23 @@ export const messages: Record<string, Record<string, string>> = {
     clinical_review_open_detail_hint:
       "Edit 또는 Study Detail에서 AI 결과를 수락하거나 소견을 수정하세요.",
     review_change: "리뷰 변경",
+    medical_chatbot: "임상 어시스턴트",
+    medical_chatbot_subtitle: "의료 LLM Q&A",
+    medical_chatbot_placeholder: "임상 질문을 입력하세요...",
+    medical_chatbot_send: "전송",
+    medical_chatbot_welcome:
+      "소견, 감별진단, 영상 해석에 대해 질문해 보세요. 참고용이며 진단이 아닙니다.",
+    medical_chatbot_disclaimer:
+      "임상 참고용입니다. 전문의 판단을 대체하지 않습니다.",
+    medical_chatbot_stub_reply:
+      "의료 LLM 연동은 아직 준비 중입니다. 채팅 UI는 다음 단계에서 연결됩니다.",
+    medical_chatbot_thinking: "응답 생성 중...",
+    medical_chatbot_not_configured:
+      "임상 어시스턴트가 설정되지 않았습니다. API 서버에 GROQ_API_KEY를 설정하세요.",
+    medical_chatbot_timeout:
+      "임상 어시스턴트 응답이 시간 초과되었습니다. 다시 시도해 주세요.",
+    medical_chatbot_error:
+      "임상 어시스턴트에 연결할 수 없습니다. 다시 시도해 주세요.",
   },
   es: {
     welcome: "Hola, {name}",
@@ -449,5 +483,22 @@ export const messages: Record<string, Record<string, string>> = {
     clinical_review_open_detail_hint:
       "Use Editar o el detalle del estudio para Aceptar o Anular el resultado de la IA.",
     review_change: "Cambiar revisión",
+    medical_chatbot: "Asistente clínico",
+    medical_chatbot_subtitle: "Preguntas y respuestas con LLM médico",
+    medical_chatbot_placeholder: "Haga una pregunta clínica...",
+    medical_chatbot_send: "Enviar",
+    medical_chatbot_welcome:
+      "Pregunte sobre hallazgos, diagnósticos diferenciales o interpretación de imágenes. Solo referencia clínica — no es un diagnóstico.",
+    medical_chatbot_disclaimer:
+      "Solo referencia clínica. No sustituye el juicio profesional.",
+    medical_chatbot_stub_reply:
+      "La conexión al LLM médico aún no está configurada. La interfaz de chat está lista para el siguiente paso.",
+    medical_chatbot_thinking: "Pensando...",
+    medical_chatbot_not_configured:
+      "El asistente clínico no está configurado. Defina GROQ_API_KEY en el servidor API.",
+    medical_chatbot_timeout:
+      "El asistente clínico agotó el tiempo de espera. Inténtelo de nuevo.",
+    medical_chatbot_error:
+      "No se pudo contactar al asistente clínico. Inténtelo de nuevo.",
   },
 };
