@@ -12,6 +12,8 @@ _upload_dir.mkdir(parents=True, exist_ok=True)
 os.environ.setdefault("DATABASE_URL", f"sqlite:///{_tmp}/test.db")
 os.environ.setdefault("UPLOAD_DIR", str(_upload_dir))
 os.environ.setdefault("CORS_ORIGINS", "http://localhost:5173")
+# Env vars override backend/.env, so tests never pick up a real key or call Groq.
+os.environ["GROQ_API_KEY"] = ""
 
 from app.main import app  # noqa: E402
 

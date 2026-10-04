@@ -13,6 +13,8 @@ import ChatOutlinedIcon from "@mui/icons-material/ChatOutlined";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
 import { useIntl } from "react-intl";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { useNav } from "../../context/NavContext";
@@ -36,6 +38,44 @@ const WELCOME_MESSAGE: ChatMessage = {
   role: "assistant",
   messageId: "medical_chatbot_welcome",
 };
+
+const MARKDOWN_SX = {
+  wordBreak: "break-word",
+  "& > :first-of-type": { mt: 0 },
+  "& > :last-child": { mb: 0 },
+  "& p": { my: 0.75 },
+  "& ul, & ol": { my: 0.75, pl: 2.5 },
+  "& li": { my: 0.25 },
+  "& li > p": { my: 0 },
+  "& h1, & h2, & h3, & h4": { fontSize: "0.9rem", fontWeight: 700, my: 1 },
+  "& blockquote": {
+    my: 0.75,
+    pl: 1.25,
+    borderLeft: "3px solid var(--color-border)",
+    color: "text.secondary",
+  },
+  "& code": {
+    fontSize: "0.8em",
+    px: 0.5,
+    borderRadius: 0.5,
+    bgcolor: "var(--color-surface)",
+  },
+  "& hr": { my: 1, border: 0, borderTop: "1px solid var(--color-border)" },
+  "& table": {
+    display: "block",
+    overflowX: "auto",
+    borderCollapse: "collapse",
+    my: 0.75,
+    fontSize: "0.75rem",
+  },
+  "& th, & td": {
+    border: "1px solid var(--color-border)",
+    px: 0.75,
+    py: 0.5,
+    textAlign: "left",
+    verticalAlign: "top",
+  },
+} as const;
 
 function resolveStudyId(
   pathname: string,
@@ -126,9 +166,11 @@ const MedicalChatbot = () => {
       const messageId =
         detail.includes("groq_api_key") || detail.includes("not configured")
           ? "medical_chatbot_not_configured"
-          : detail.includes("timed out") || detail.includes("timeout")
-            ? "medical_chatbot_timeout"
-            : "medical_chatbot_error";
+          : detail.includes("rate limit")
+            ? "medical_chatbot_rate_limited"
+            : detail.includes("timed out") || detail.includes("timeout")
+              ? "medical_chatbot_timeout"
+              : "medical_chatbot_error";
       setMessages((prev) => [
         ...prev,
         {
@@ -175,7 +217,10 @@ const MedicalChatbot = () => {
             bottom: "calc(var(--layout-footer-height, 3rem) + 8px)",
             width: { xs: `calc(100vw - ${navOffset} - 16px)`, sm: 380 },
             maxWidth: `calc(100vw - ${navOffset} - 16px)`,
-            height: { xs: "min(70vh, 480px)", sm: 440 },
+            height: {
+              xs: "min(70vh, 480px)",
+              sm: `min(600px, calc(100vh - ${LAYOUT.headerHeight} - ${LAYOUT.footerHeight} - 16px))`,
+            },
             zIndex: 1300,
             display: "flex",
             flexDirection: "column",
@@ -261,12 +306,37 @@ const MedicalChatbot = () => {
                           : "0 1px 2px rgba(0,0,0,0.04)",
                       }}
                     >
-                      <Typography
-                        variant="body2"
-                        sx={{ whiteSpace: "pre-wrap" }}
-                      >
-                        {resolveMessageText(message)}
-                      </Typography>
+                      {!isUser && !message.messageId ? (
+                        <Typography
+                          variant="body2"
+                          component="div"
+                          sx={MARKDOWN_SX}
+                        >
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              a: (props) => (
+                                <a {...props} target="_blank" rel="noreferrer" />
+                              ),
+                            }}
+                          >
+                            {message.text ?? ""}
+                          </ReactMarkdown>
+                        </Typography>
+                      ) : (
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            whiteSpace: "pre-wrap",
+                            ...(message.id === WELCOME_MESSAGE.id && {
+                              fontSize: "0.8125rem",
+                              lineHeight: 1.45,
+                            }),
+                          }}
+                        >
+                          {resolveMessageText(message)}
+                        </Typography>
+                      )}
                     </Box>
                   </Box>
                 );
@@ -313,6 +383,9 @@ const MedicalChatbot = () => {
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key !== "Enter" || event.shiftKey) return;
+                // Korean IME fires Enter while a syllable is still composing; sending then
+                // leaves the last character behind in the input.
+                if (event.nativeEvent.isComposing || event.keyCode === 229) return;
                 event.preventDefault();
                 if (sending || !input.trim()) return;
                 void handleSubmit(event);

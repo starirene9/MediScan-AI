@@ -243,3 +243,129 @@ def test_chat_with_study_context(client, monkeypatch):
     ]
     assert any(study_id in content for content in system_contents)
     assert any("aiPrimaryLabel" in content for content in system_contents)
+
+
+def _fake_groq_client(responses, calls):
+    """AsyncClient stand-in that returns (status_code, body) pairs in order."""
+
+    class FakeResponse:
+        def __init__(self, status_code, body):
+            self.status_code = status_code
+            self._body = body
+            self.text = ""
+
+        def json(self):
+            return self._body
+
+    class FakeAsyncClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            return False
+
+        async def post(self, url, headers=None, json=None):
+            calls.append(json)
+            status_code, body = responses[len(calls) - 1]
+            return FakeResponse(status_code, body)
+
+    return FakeAsyncClient
+
+
+_RATE_LIMITED = (429, {"error": {"message": "Rate limit reached"}})
+
+
+def _ok(model, content="Fallback answer."):
+    return (200, {"model": model, "choices": [{"message": {"content": content}}]})
+
+
+def test_chat_falls_back_when_primary_is_rate_limited(client, monkeypatch):
+    monkeypatch.setattr("app.services.chat_service.settings.groq_api_key", "test-key")
+    monkeypatch.setattr("app.services.chat_service.settings.groq_model", "primary")
+    monkeypatch.setattr(
+        "app.services.chat_service.settings.groq_fallback_models", "openai/gpt-oss-120b"
+    )
+    calls = []
+    monkeypatch.setattr(
+        "app.services.chat_service.httpx.AsyncClient",
+        _fake_groq_client([_RATE_LIMITED, _ok("openai/gpt-oss-120b")], calls),
+    )
+
+    response = client.post(
+        "/api/chat", json={"messages": [{"role": "user", "content": "hi"}]}
+    )
+
+    assert response.status_code == 200
+    assert response.json()["model"] == "openai/gpt-oss-120b"
+    assert [c["model"] for c in calls] == ["primary", "openai/gpt-oss-120b"]
+    assert calls[1]["reasoning_effort"] == "low"
+
+
+def test_chat_returns_429_when_all_models_rate_limited(client, monkeypatch):
+    monkeypatch.setattr("app.services.chat_service.settings.groq_api_key", "test-key")
+    monkeypatch.setattr("app.services.chat_service.settings.groq_model", "primary")
+    monkeypatch.setattr("app.services.chat_service.settings.groq_fallback_models", "backup")
+    calls = []
+    monkeypatch.setattr(
+        "app.services.chat_service.httpx.AsyncClient",
+        _fake_groq_client([_RATE_LIMITED, _RATE_LIMITED], calls),
+    )
+
+    response = client.post(
+        "/api/chat", json={"messages": [{"role": "user", "content": "hi"}]}
+    )
+
+    assert response.status_code == 429
+    assert "rate limit" in response.json()["detail"].lower()
+    assert len(calls) == 2
+
+
+def test_chat_adds_korean_reply_hint_for_korean_question(client, monkeypatch):
+    monkeypatch.setattr("app.services.chat_service.settings.groq_api_key", "test-key")
+    calls = []
+    monkeypatch.setattr(
+        "app.services.chat_service.httpx.AsyncClient",
+        _fake_groq_client([_ok("primary", "답변"), _ok("primary", "answer")], calls),
+    )
+
+    client.post("/api/chat", json={"messages": [{"role": "user", "content": "흉수란?"}]})
+    client.post("/api/chat", json={"messages": [{"role": "user", "content": "What is effusion?"}]})
+
+    korean_msgs, english_msgs = calls[0]["messages"], calls[1]["messages"]
+    assert korean_msgs[-2] == {"role": "system", "content": "Respond in Korean for this turn."}
+    assert korean_msgs[-1]["role"] == "user"
+    assert not any("Respond in Korean" in m["content"] for m in english_msgs)
+
+
+def test_chat_context_marks_missing_findings_as_not_available(client, monkeypatch):
+    monkeypatch.setattr("app.services.chat_service.settings.groq_api_key", "test-key")
+    calls = []
+    monkeypatch.setattr(
+        "app.services.chat_service.httpx.AsyncClient",
+        _fake_groq_client([_ok("primary", "Noted.")], calls),
+    )
+    created = client.post(
+        "/api/studies",
+        json={
+            "patientName": "No Findings",
+            "prediction": {"label": "Pneumonia", "confidence": 0.9, "findings": []},
+            "imageUrl": "/placeholder-xray.svg",
+        },
+    ).json()
+
+    response = client.post(
+        "/api/chat",
+        json={
+            "messages": [{"role": "user", "content": "Summarize."}],
+            "studyId": created["id"],
+        },
+    )
+
+    assert response.status_code == 200
+    context = calls[0]["messages"][1]["content"]
+    assert "aiPositiveFindings: not available" in context
+    assert "No Findings" not in context
+    client.delete(f"/api/studies/{created['id']}")
