@@ -141,3 +141,22 @@ class InferenceSettingsResponse(BaseModel):
     pathologyThresholds: dict[str, float]
     pathologies: list[str]
     groupMap: dict[str, str]
+
+
+ChatRole = Literal["system", "user", "assistant"]
+
+
+class ChatMessage(BaseModel):
+    role: ChatRole
+    content: str = Field(min_length=1, max_length=8000)
+
+
+class ChatRequest(BaseModel):
+    messages: list[ChatMessage] = Field(min_length=1, max_length=40)
+    studyId: str | None = None
+
+
+class ChatResponse(BaseModel):
+    message: ChatMessage
+    model: str
+    studyId: str | None = None

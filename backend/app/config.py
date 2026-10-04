@@ -26,11 +26,27 @@ class Settings(BaseSettings):
     #   grouped → roll up via app.ml.pathologies.GROUP_MAP
     classification_mode: str = "nih14"
 
+    # Clinical assistant (Groq OpenAI-compatible chat API)
+    groq_api_key: str = ""
+    groq_model: str = "qwen/qwen3.8-27b"
+    # Comma-separated models tried in order when the primary hits a rate limit (429).
+    # Free tier output-token-per-minute caps are per model, so a fallback keeps chat usable.
+    groq_fallback_models: str = "openai/gpt-oss-120b"
+    groq_max_tokens: int = 600
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    groq_timeout_seconds: float = 45.0
+
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(BACKEND_ROOT / ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    @property
+    def groq_model_chain(self) -> list[str]:
+        fallbacks = [m.strip() for m in self.groq_fallback_models.split(",") if m.strip()]
+        chain = [self.groq_model.strip(), *fallbacks]
+        return list(dict.fromkeys(m for m in chain if m))
 
     @property
     def cors_origin_list(self) -> list[str]:

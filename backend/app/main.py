@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.api import dashboard, health, inference, studies
+from app.api import chat, dashboard, health, inference, studies
 from app.config import settings
 from app.db.database import Base, SessionLocal, engine
 from app.db.migrate import ensure_schema
@@ -45,5 +45,6 @@ app.include_router(health.router)
 app.include_router(studies.router)
 app.include_router(dashboard.router)
 app.include_router(inference.router)
+app.include_router(chat.router)
 app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads")
 register_frontend(app)

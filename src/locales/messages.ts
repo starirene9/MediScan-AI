@@ -149,6 +149,25 @@ export const messages: Record<string, Record<string, string>> = {
     clinical_review_open_detail_hint:
       "Use Edit or Open Study Detail to Accept or Override the AI result.",
     review_change: "Change review",
+    medical_chatbot: "Clinical Assistant",
+    medical_chatbot_subtitle: "Medical LLM Q&A",
+    medical_chatbot_placeholder: "Ask a clinical question...",
+    medical_chatbot_send: "Send",
+    medical_chatbot_welcome:
+      "Hi! I help you review AI chest X-ray results.\n\nHow to use\n1. Select a study row in the worklist, or open Study Detail.\n2. When the study ID (e.g. S002) appears in the header, answers use that study.\n\nTry asking\n• What else should I check for this result?\n• Draft a review note for this study\n• How do effusion and consolidation differ?\n\nGood to know\n• Not a diagnosis or prescription.\n• I can't see the X-ray image — only AI results and review info.\n• Select the study instead of asking by patient name.\n• Note drafts aren't saved automatically — copy and paste them.",
+    medical_chatbot_disclaimer:
+      "For clinical reference only. Not a substitute for professional judgment.",
+    medical_chatbot_stub_reply:
+      "Medical LLM connection is not wired yet. The chat UI is ready for the next step.",
+    medical_chatbot_thinking: "Thinking...",
+    medical_chatbot_not_configured:
+      "Clinical assistant is not configured. Set GROQ_API_KEY on the API server.",
+    medical_chatbot_timeout:
+      "The clinical assistant timed out. Please try again.",
+    medical_chatbot_rate_limited:
+      "Too many requests on the free AI tier right now. Please wait about a minute and try again.",
+    medical_chatbot_error:
+      "Could not reach the clinical assistant. Please try again.",
   },
   ko: {
     welcome: "안녕하세요, {name}",
@@ -298,6 +317,25 @@ export const messages: Record<string, Record<string, string>> = {
     clinical_review_open_detail_hint:
       "Edit 또는 Study Detail에서 AI 결과를 수락하거나 소견을 수정하세요.",
     review_change: "리뷰 변경",
+    medical_chatbot: "임상 어시스턴트",
+    medical_chatbot_subtitle: "의료 LLM Q&A",
+    medical_chatbot_placeholder: "임상 질문을 입력하세요...",
+    medical_chatbot_send: "전송",
+    medical_chatbot_welcome:
+      "안녕하세요. AI 흉부 X-ray 결과를 리뷰할 때 참고할 수 있는 임상 어시스턴트입니다.\n\n사용 방법\n1. 워크리스트에서 study 행을 선택하거나 Study Detail을 엽니다.\n2. 상단에 study ID(예: S002)가 보이면 그 study를 기준으로 답합니다.\n\n이렇게 물어보세요\n• 이 결과에서 추가로 확인할 점은?\n• 이 study의 리뷰 메모 초안을 써줘\n• Effusion과 Consolidation은 어떻게 달라?\n\n참고\n• 진단이나 처방을 대신하지 않습니다.\n• X-ray 이미지는 보지 못하고, AI 결과와 리뷰 정보만 참고합니다.\n• 환자 이름 대신 study를 선택한 뒤 질문하세요.\n• 메모 초안은 자동 저장되지 않으니 복사해서 붙여 넣으세요.",
+    medical_chatbot_disclaimer:
+      "임상 참고용입니다. 전문의 판단을 대체하지 않습니다.",
+    medical_chatbot_stub_reply:
+      "의료 LLM 연동은 아직 준비 중입니다. 채팅 UI는 다음 단계에서 연결됩니다.",
+    medical_chatbot_thinking: "응답 생성 중...",
+    medical_chatbot_not_configured:
+      "임상 어시스턴트가 설정되지 않았습니다. API 서버에 GROQ_API_KEY를 설정하세요.",
+    medical_chatbot_timeout:
+      "임상 어시스턴트 응답이 시간 초과되었습니다. 다시 시도해 주세요.",
+    medical_chatbot_rate_limited:
+      "무료 AI 사용량 한도에 잠시 도달했습니다. 1분 정도 후에 다시 시도해 주세요.",
+    medical_chatbot_error:
+      "임상 어시스턴트에 연결할 수 없습니다. 다시 시도해 주세요.",
   },
   es: {
     welcome: "Hola, {name}",
@@ -449,5 +487,24 @@ export const messages: Record<string, Record<string, string>> = {
     clinical_review_open_detail_hint:
       "Use Editar o el detalle del estudio para Aceptar o Anular el resultado de la IA.",
     review_change: "Cambiar revisión",
+    medical_chatbot: "Asistente clínico",
+    medical_chatbot_subtitle: "Preguntas y respuestas con LLM médico",
+    medical_chatbot_placeholder: "Haga una pregunta clínica...",
+    medical_chatbot_send: "Enviar",
+    medical_chatbot_welcome:
+      "¡Hola! Le ayudo a revisar resultados de IA de radiografías de tórax.\n\nCómo usarlo\n1. Seleccione un estudio en la lista o abra su detalle.\n2. Si ve el ID (p. ej. S002) en la cabecera, respondo sobre ese estudio.\n\nPruebe a preguntar\n• ¿Qué más debo revisar aquí?\n• Redacta una nota de revisión\n• ¿Derrame frente a consolidación?\n\nA tener en cuenta\n• No es un diagnóstico ni una prescripción.\n• No veo la imagen, solo los resultados de IA y la revisión.\n• Seleccione el estudio en vez de usar el nombre del paciente.\n• Las notas no se guardan solas: cópielas y péguelas.",
+    medical_chatbot_disclaimer:
+      "Solo referencia clínica. No sustituye el juicio profesional.",
+    medical_chatbot_stub_reply:
+      "La conexión al LLM médico aún no está configurada. La interfaz de chat está lista para el siguiente paso.",
+    medical_chatbot_thinking: "Pensando...",
+    medical_chatbot_not_configured:
+      "El asistente clínico no está configurado. Defina GROQ_API_KEY en el servidor API.",
+    medical_chatbot_timeout:
+      "El asistente clínico agotó el tiempo de espera. Inténtelo de nuevo.",
+    medical_chatbot_rate_limited:
+      "Se alcanzó el límite del nivel gratuito de IA. Espere un minuto e inténtelo de nuevo.",
+    medical_chatbot_error:
+      "No se pudo contactar al asistente clínico. Inténtelo de nuevo.",
   },
 };

@@ -243,3 +243,32 @@ export async function fetchStudyTrendsApi(
 ): Promise<StudyTrendPoint[]> {
   return request<StudyTrendPoint[]>(`/api/dashboard/trends?days=${days}`);
 }
+
+export interface ChatApiMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+}
+
+export interface ChatApiResponse {
+  message: ChatApiMessage;
+  model: string;
+  studyId: string | null;
+}
+
+export async function sendClinicalChat(params: {
+  messages: ChatApiMessage[];
+  studyId?: string | null;
+}): Promise<ChatApiResponse> {
+  return requestWithTimeout<ChatApiResponse>(
+    "/api/chat",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: params.messages,
+        studyId: params.studyId ?? null,
+      }),
+    },
+    60_000
+  );
+}
