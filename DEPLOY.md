@@ -57,6 +57,19 @@ ARG VITE_ADMIN_PASSWORD=admin123
 
 To change them on Railway/Render, set these as **build arguments** (not runtime env) if the platform supports it.
 
+## Public demo protection
+
+The Docker image sets `DEMO_MODE=true`. Local `uvicorn` development keeps it off.
+
+| Behavior | Setting (default) |
+|----------|-------------------|
+| Deleting studies and editing patient details return `403` | always on in demo mode |
+| Clinical Assistant chat: N requests per client per window | `DEMO_CHAT_LIMIT=10`, `DEMO_CHAT_WINDOW_SECONDS=600` |
+| Analyze / save / review / notes: N requests per client per window | `DEMO_WRITE_LIMIT=20`, `DEMO_WRITE_WINDOW_SECONDS=600` |
+| Restore seed studies and clear uploads | `DEMO_RESET_INTERVAL_MINUTES=60` (`0` disables) |
+
+Rate limits are in-memory and keyed by `X-Forwarded-For`, which fits a single demo container. Set `DEMO_MODE=false` to turn all of this off.
+
 ## What persists on demo deploy
 
 | Data | Persists? |

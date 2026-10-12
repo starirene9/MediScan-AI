@@ -32,6 +32,7 @@ import SearchFilter from "../../components/shared/SearchFilter";
 import StudiesTable from "./StudiesTable";
 import StudyDetailCard from "./StudyDetailCard";
 import StudyEditDialog, { StudyEditValues } from "./StudyEditDialog";
+import useDemoMode from "../../hooks/useDemoMode";
 
 const StudiesWorklist = () => {
   const theme = useTheme();
@@ -46,6 +47,7 @@ const StudiesWorklist = () => {
     (state: RootState) => state.studies
   );
   const intl = useIntl();
+  const demoMode = useDemoMode();
   const selectedStudy = selectedStudyId ? studies[selectedStudyId] ?? null : null;
 
   useEffect(() => {
@@ -81,10 +83,11 @@ const StudiesWorklist = () => {
   const handleSaveEdit = async (values: StudyEditValues) => {
     if (!selectedStudy) return;
     await dispatch(
-      updateStudyFields({
-        id: selectedStudy.id,
-        ...values,
-      })
+      updateStudyFields(
+        demoMode
+          ? { id: selectedStudy.id, notes: values.notes }
+          : { id: selectedStudy.id, ...values }
+      )
     ).unwrap();
     dispatch(selectStudy(selectedStudy.id));
     setEditOpen(false);
@@ -129,7 +132,11 @@ const StudiesWorklist = () => {
     <StudyDetailCard
       selectedStudyId={selectedStudyId}
       onEdit={() => setEditOpen(true)}
-      onDelete={() => selectedStudyId && handleDeleteRequest(selectedStudyId)}
+      onDelete={
+        demoMode
+          ? undefined
+          : () => selectedStudyId && handleDeleteRequest(selectedStudyId)
+      }
     />
   );
 
@@ -217,7 +224,7 @@ const StudiesWorklist = () => {
               dispatch(selectStudy(id));
               setEditOpen(true);
             }}
-            onDeleteStudy={handleDeleteRequest}
+            onDeleteStudy={demoMode ? undefined : handleDeleteRequest}
           />
         </Paper>
 
@@ -300,6 +307,7 @@ const StudiesWorklist = () => {
         open={editOpen}
         study={selectedStudy}
         saving={mutating}
+        patientFieldsLocked={demoMode}
         onClose={() => setEditOpen(false)}
         onSave={handleSaveEdit}
         onSubmitReview={handleSubmitReview}

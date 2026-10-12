@@ -36,6 +36,14 @@ class Settings(BaseSettings):
     groq_base_url: str = "https://api.groq.com/openai/v1"
     groq_timeout_seconds: float = 45.0
 
+    # Public demo protection. Off by default so local development is unaffected.
+    demo_mode: bool = False
+    demo_reset_interval_minutes: int = 60
+    demo_chat_limit: int = 10
+    demo_chat_window_seconds: int = 600
+    demo_write_limit: int = 20
+    demo_write_window_seconds: int = 600
+
     model_config = SettingsConfigDict(
         env_file=str(BACKEND_ROOT / ".env"),
         env_file_encoding="utf-8",

@@ -17,6 +17,7 @@ export interface HealthPayload {
   status: string;
   app: string;
   modelReady: boolean;
+  demoMode: boolean;
 }
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {

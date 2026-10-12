@@ -30,6 +30,7 @@ interface StudyEditDialogProps {
   open: boolean;
   study: Study | null;
   saving?: boolean;
+  patientFieldsLocked?: boolean;
   onClose: () => void;
   onSave: (values: StudyEditValues) => void;
   onSubmitReview?: (payload: {
@@ -45,6 +46,7 @@ const StudyEditDialog = ({
   open,
   study,
   saving = false,
+  patientFieldsLocked = false,
   onClose,
   onSave,
   onSubmitReview,
@@ -79,8 +81,14 @@ const StudyEditDialog = ({
       </DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ mt: 1 }}>
+          {patientFieldsLocked && (
+            <Typography variant="body2" color="text.secondary">
+              {intl.formatMessage({ id: "demo_patient_fields_locked" })}
+            </Typography>
+          )}
           <TextField
             required
+            disabled={patientFieldsLocked}
             label={intl.formatMessage({ id: "patient_name" })}
             value={values.patientName}
             onChange={(e) =>
@@ -90,6 +98,7 @@ const StudyEditDialog = ({
             size="small"
           />
           <TextField
+            disabled={patientFieldsLocked}
             label={intl.formatMessage({ id: "age" })}
             type="number"
             value={values.age}
@@ -103,7 +112,7 @@ const StudyEditDialog = ({
             size="small"
             inputProps={{ min: 0 }}
           />
-          <FormControl fullWidth size="small">
+          <FormControl fullWidth size="small" disabled={patientFieldsLocked}>
             <InputLabel>{intl.formatMessage({ id: "gender" })}</InputLabel>
             <Select
               label={intl.formatMessage({ id: "gender" })}
@@ -120,6 +129,7 @@ const StudyEditDialog = ({
             </Select>
           </FormControl>
           <TextField
+            disabled={patientFieldsLocked}
             label={intl.formatMessage({ id: "modality" })}
             value={values.modality}
             onChange={(e) =>

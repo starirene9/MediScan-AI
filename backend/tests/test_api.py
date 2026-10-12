@@ -5,6 +5,7 @@ def test_health(client):
     assert payload["status"] == "ok"
     assert payload["app"] == "MediScan AI API"
     assert payload["modelReady"] is False
+    assert payload["demoMode"] is False
 
 
 def test_list_studies_returns_seed_data(client):

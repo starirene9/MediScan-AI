@@ -12,7 +12,7 @@ from app.db.migrate import ensure_schema
 from app.db.seed import seed_studies
 from app.frontend import register_frontend
 from app.models import entities  # noqa: F401  — register SQLAlchemy models
-from app.services import inference_service
+from app.services import demo_service, inference_service
 from app.services.storage_service import ensure_upload_dir
 
 
@@ -28,7 +28,14 @@ async def lifespan(_app: FastAPI):
         db.close()
     if settings.warmup_model_on_startup:
         asyncio.create_task(asyncio.to_thread(inference_service.warmup_model))
+    reset_task = None
+    if settings.demo_mode and settings.demo_reset_interval_minutes > 0:
+        reset_task = asyncio.create_task(
+            demo_service.run_periodic_reset(settings.demo_reset_interval_minutes)
+        )
     yield
+    if reset_task is not None:
+        reset_task.cancel()
 
 
 app = FastAPI(title=settings.app_name, version="0.1.0", lifespan=lifespan)

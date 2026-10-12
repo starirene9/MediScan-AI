@@ -13,4 +13,5 @@ def health() -> HealthResponse:
         status="ok",
         app=settings.app_name,
         modelReady=inference_service.is_model_ready(),
+        demoMode=settings.demo_mode,
     )

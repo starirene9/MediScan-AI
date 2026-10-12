@@ -44,7 +44,8 @@ ENV SERVE_FRONTEND=true \
     DATABASE_URL=sqlite:////app/backend/data/mediscan.db \
     UPLOAD_DIR=/app/backend/uploads \
     CORS_ORIGINS=* \
-    WARMUP_MODEL_ON_STARTUP=true
+    WARMUP_MODEL_ON_STARTUP=true \
+    DEMO_MODE=true
 
 EXPOSE 8000
 

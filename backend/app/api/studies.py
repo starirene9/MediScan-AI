@@ -9,7 +9,7 @@ from app.models.schemas import (
     StudyReviewRequest,
     StudyUpdate,
 )
-from app.services import inference_service, storage_service, study_service
+from app.services import demo_service, inference_service, storage_service, study_service
 
 router = APIRouter(prefix="/api/studies", tags=["studies"])
 
@@ -19,7 +19,11 @@ def list_studies(db: Session = Depends(get_db)) -> list[Study]:
     return study_service.list_studies(db)
 
 
-@router.post("/analyze", response_model=AnalyzeResponse)
+@router.post(
+    "/analyze",
+    response_model=AnalyzeResponse,
+    dependencies=[Depends(demo_service.limit_writes)],
+)
 async def analyze_study(
     file: UploadFile = File(...),
     patientName: str = Form("Unknown Patient"),
@@ -67,25 +71,41 @@ def get_study(study_id: str, db: Session = Depends(get_db)) -> Study:
     return study_service.get_study(db, study_id)
 
 
-@router.post("", response_model=Study, status_code=201)
+@router.post(
+    "",
+    response_model=Study,
+    status_code=201,
+    dependencies=[Depends(demo_service.limit_writes)],
+)
 def create_study(payload: StudyCreate, db: Session = Depends(get_db)) -> Study:
     return study_service.create_study(db, payload)
 
 
-@router.post("/{study_id}/review", response_model=Study)
+@router.post(
+    "/{study_id}/review",
+    response_model=Study,
+    dependencies=[Depends(demo_service.limit_writes)],
+)
 def review_study(
     study_id: str, payload: StudyReviewRequest, db: Session = Depends(get_db)
 ) -> Study:
     return study_service.review_study(db, study_id, payload)
 
 
-@router.patch("/{study_id}", response_model=Study)
+@router.patch(
+    "/{study_id}",
+    response_model=Study,
+    dependencies=[Depends(demo_service.limit_writes)],
+)
 def update_study(
     study_id: str, payload: StudyUpdate, db: Session = Depends(get_db)
 ) -> Study:
+    if payload.model_fields_set - {"notes"}:
+        demo_service.block_in_demo("Editing patient details")
     return study_service.update_study(db, study_id, payload)
 
 
 @router.delete("/{study_id}", status_code=204)
 def delete_study(study_id: str, db: Session = Depends(get_db)) -> None:
+    demo_service.block_in_demo("Deleting studies")
     study_service.delete_study(db, study_id)

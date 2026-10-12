@@ -133,6 +133,7 @@ class HealthResponse(BaseModel):
     # No default: FastAPI's response-model serialization may exclude default-valued
     # fields (e.g. `false`). Make this required so `false` is still returned.
     modelReady: bool
+    demoMode: bool
 
 
 class InferenceSettingsResponse(BaseModel):
