@@ -1,0 +1,120 @@
+{
+  "model": "densenet121-res224-all",
+  "split": "NIH ChestX-ray14 official test_list.txt",
+  "images": 25596,
+  "mean_auroc": 0.716564773689412,
+  "results": [
+    {
+      "pathology": "Atelectasis",
+      "positives": 3279,
+      "auroc": 0.7174898076173555,
+      "threshold": 0.5,
+      "sensitivity": 0.7971942665446783,
+      "specificity": 0.5035174978715777
+    },
+    {
+      "pathology": "Cardiomegaly",
+      "positives": 1069,
+      "auroc": 0.8468704026104676,
+      "threshold": 0.5,
+      "sensitivity": 0.6426566884939195,
+      "specificity": 0.8651282260366127
+    },
+    {
+      "pathology": "Effusion",
+      "positives": 4658,
+      "auroc": 0.7803602344585936,
+      "threshold": 0.5,
+      "sensitivity": 0.8370545298411335,
+      "specificity": 0.5721176807718025
+    },
+    {
+      "pathology": "Infiltration",
+      "positives": 6112,
+      "auroc": 0.6619219246615023,
+      "threshold": 0.5,
+      "sensitivity": 0.9381544502617801,
+      "specificity": 0.13949907616505852
+    },
+    {
+      "pathology": "Mass",
+      "positives": 1748,
+      "auroc": 0.7359721192840699,
+      "threshold": 0.5,
+      "sensitivity": 0.954233409610984,
+      "specificity": 0.2133512244213351
+    },
+    {
+      "pathology": "Nodule",
+      "positives": 1623,
+      "auroc": 0.6570867400399284,
+      "threshold": 0.5,
+      "sensitivity": 0.8823166974738139,
+      "specificity": 0.23071789096066408
+    },
+    {
+      "pathology": "Pneumonia",
+      "positives": 555,
+      "auroc": 0.6531083617461957,
+      "threshold": 0.5,
+      "sensitivity": 0.5171171171171172,
+      "specificity": 0.6818417794816501
+    },
+    {
+      "pathology": "Pneumothorax",
+      "positives": 2665,
+      "auroc": 0.6603281334336643,
+      "threshold": 0.5,
+      "sensitivity": 0.8870544090056285,
+      "specificity": 0.356809559112119
+    },
+    {
+      "pathology": "Consolidation",
+      "positives": 1815,
+      "auroc": 0.6952411368985334,
+      "threshold": 0.5,
+      "sensitivity": 0.9008264462809917,
+      "specificity": 0.3679828434464488
+    },
+    {
+      "pathology": "Edema",
+      "positives": 925,
+      "auroc": 0.7739627114447754,
+      "threshold": 0.5,
+      "sensitivity": 0.6151351351351352,
+      "specificity": 0.7604474889546431
+    },
+    {
+      "pathology": "Emphysema",
+      "positives": 1093,
+      "auroc": 0.5972990815882694,
+      "threshold": 0.5,
+      "sensitivity": 0.7410795974382434,
+      "specificity": 0.3872995143451822
+    },
+    {
+      "pathology": "Fibrosis",
+      "positives": 435,
+      "auroc": 0.6877110945739324,
+      "threshold": 0.5,
+      "sensitivity": 0.9563218390804598,
+      "specificity": 0.2123127061722507
+    },
+    {
+      "pathology": "Pleural_Thickening",
+      "positives": 1143,
+      "auroc": 0.6909368943489679,
+      "threshold": 0.5,
+      "sensitivity": 0.8153980752405949,
+      "specificity": 0.4193350509139983
+    },
+    {
+      "pathology": "Hernia",
+      "positives": 86,
+      "auroc": 0.8736181889455116,
+      "threshold": 0.5,
+      "sensitivity": 0.6627906976744186,
+      "specificity": 0.9706389651117209
+    }
+  ]
+}
