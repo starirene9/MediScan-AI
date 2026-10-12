@@ -61,4 +61,9 @@ Training and evaluation utilities live in `backend/scripts/`:
 
 - `train_mediscan_classifier.py`
 - `eval_nih_multilabel.py`
+- `eval_nih_auroc.py` — per-pathology AUROC, sensitivity, and specificity on the official NIH test split (results in `docs/eval/`)
 - `tune_pathology_thresholds.py`
+
+## Public demo mode
+
+`DEMO_MODE=true` (set in the Docker image) blocks deletes and patient-detail edits, rate-limits chat and write endpoints per client, and periodically restores seed data. See [DEPLOY.md](../DEPLOY.md#public-demo-protection) for the settings.
