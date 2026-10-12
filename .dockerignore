@@ -5,6 +5,9 @@ dist
 .env
 .env.*
 !.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
 backend/.venv
 backend/__pycache__
 backend/**/__pycache__
