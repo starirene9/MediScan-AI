@@ -56,6 +56,8 @@ def _build_study_context(study: Study) -> str:
     review_line = "not reviewed yet"
     if study.review:
         review_line = f"{study.review.decision}; finalLabel={study.review.finalLabel}"
+        if study.review.note.strip():
+            review_line += f"; reviewNote={study.review.note.strip()}"
     return (
         "Current study context (patient name withheld; for reference only):\n"
         f"- studyId: {study.id}\n"

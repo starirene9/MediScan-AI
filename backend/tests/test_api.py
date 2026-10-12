@@ -341,6 +341,40 @@ def test_chat_adds_korean_reply_hint_for_korean_question(client, monkeypatch):
     assert not any("Respond in Korean" in m["content"] for m in english_msgs)
 
 
+def test_chat_context_includes_review_note(client, monkeypatch):
+    monkeypatch.setattr("app.services.chat_service.settings.groq_api_key", "test-key")
+    calls = []
+    monkeypatch.setattr(
+        "app.services.chat_service.httpx.AsyncClient",
+        _fake_groq_client([_ok("primary", "Noted.")], calls),
+    )
+    created = client.post(
+        "/api/studies",
+        json={
+            "patientName": "Override Reason",
+            "prediction": {"label": "Nodule", "confidence": 0.8, "findings": []},
+            "imageUrl": "/placeholder-xray.svg",
+        },
+    ).json()
+    client.post(
+        f"/api/studies/{created['id']}/review",
+        json={"decision": "overridden", "finalLabel": "Mass", "note": "Favors mass over nodule"},
+    )
+
+    response = client.post(
+        "/api/chat",
+        json={
+            "messages": [{"role": "user", "content": "Why was it overridden?"}],
+            "studyId": created["id"],
+        },
+    )
+
+    assert response.status_code == 200
+    context = calls[0]["messages"][1]["content"]
+    assert "reviewNote=Favors mass over nodule" in context
+    client.delete(f"/api/studies/{created['id']}")
+
+
 def test_chat_context_marks_missing_findings_as_not_available(client, monkeypatch):
     monkeypatch.setattr("app.services.chat_service.settings.groq_api_key", "test-key")
     calls = []
